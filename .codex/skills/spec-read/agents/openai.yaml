@@ -1,0 +1,7 @@
+interface:
+  display_name: "Spec Read"
+  short_description: "BE 요구사항 최신성 확인과 안전한 캐시 기반 조회"
+  default_prompt: "$spec-read를 사용해 BE 요구사항 최신성을 확인하고 최신 문서를 읽어줘."
+
+policy:
+  allow_implicit_invocation: true
