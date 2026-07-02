@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Storyboard"
+  short_description: "BE 요구사항 기반 PC/모바일 분리 HTML 스토리보드와 행동 이후 흐름 설계"
+  default_prompt: "$create-storyboard를 사용해 BE 요구사항 기반 PC/모바일 HTML 스토리보드를 만들어줘."
