@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Storyboard Page"
+  short_description: "페이지별 의미 구조와 상호작용 상태 작성"
+  default_prompt: "Use $create-storyboard-page to create or update one low-fidelity storyboard page fragment."

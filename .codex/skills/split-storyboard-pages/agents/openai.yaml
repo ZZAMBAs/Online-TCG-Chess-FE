@@ -1,0 +1,4 @@
+interface:
+  display_name: "Split Storyboard Pages"
+  short_description: "스토리보드 페이지 분리안과 manifest 작성"
+  default_prompt: "Use $split-storyboard-pages to derive storyboard pages from the current BE requirements."
