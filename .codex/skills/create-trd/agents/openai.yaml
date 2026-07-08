@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create TRD"
+  short_description: "확정 아키텍처 기반 FE 기능 TRD 생성"
+  default_prompt: "Use $create-trd to generate FE hub and feature TRDs from approved PRD, fixed architecture, requirements, storyboard, and contracts."
