@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Review"
+  short_description: "BLUE 또는 e2e-test 이후 FE 보안 검증"
+  default_prompt: "Use $security-review auth-1 to run an independent FE security review after TDD BLUE or an e2e-test result."
