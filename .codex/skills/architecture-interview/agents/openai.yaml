@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Interview"
+  short_description: "FE 아키텍처와 하네스 인터뷰 및 문서화"
+  default_prompt: "Use $architecture-interview to interview me in Korean about frontend architecture, deployment, CI/CD, and AI harness decisions, then document the approved decisions."

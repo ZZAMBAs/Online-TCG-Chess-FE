@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Review"
+  short_description: "FE 아키텍처와 하네스 리뷰 및 보완"
+  default_prompt: "Use $architecture-review to review frontend architecture documents in Korean, skip unchanged areas using the prior review ledger, and update approved improvements."
