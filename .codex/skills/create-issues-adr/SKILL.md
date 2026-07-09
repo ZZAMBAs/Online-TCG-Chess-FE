@@ -13,7 +13,8 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 
 - 모든 질문, 분석, 문서, GitHub Issue 본문은 한국어로 작성한다.
 - `docs/spec/*`, `docs/contracts/*`, `docs/prd.md`, `docs/trd.md`, `docs/features/{feature}/prd.md`, `docs/features/{feature}/trd.md`, `docs/design/*`는 입력 문서로만 취급하고 수정하지 않는다.
-- PRD/TRD가 없거나 확정되지 않았으면 이슈 생성을 멈추고 먼저 `create-prd`와 `create-trd` 산출물 확정을 요청한다.
+- FE의 `docs/prd.md`, `docs/features/{feature}/prd.md`, `docs/traceability.md`는 `$prd-read`가 BE PRD를 동일 경로에 복사한 projection이다. PRD 내용이 없거나 stale 의심이 있으면 직접 작성하지 말고 `$prd-read`를 먼저 실행한다.
+- PRD/TRD가 없거나 확정되지 않았으면 이슈 생성을 멈추고 먼저 `$prd-read`와 `create-trd` 산출물 확정을 요청한다.
 - 기존 `docs/features/{feature}/issues/*`, `docs/features/{feature}/adr/*`, `docs/issue-map.md`, `docs/adr-index.md`가 있으면 먼저 읽고 중복 생성 대신 보완한다.
 - 로컬 문서를 원천 추적 기준으로 삼는다. GitHub Issue 생성은 사용자가 명시적으로 요청하고 승인한 경우에만 수행한다.
 - 이슈는 PRD 사용자 시나리오와 수용 기준을 구현 가능한 수직 슬라이스로 나눈다. 계층별 수평 작업만 나열하는 이슈는 만들지 않는다.
@@ -24,7 +25,7 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 
 ## 대상 범위
 
-사용자가 `{feature}` 인자를 주면 해당 feature만 처리한다. 예를 들어 `$create-issues-adr matchmaking`처럼 요청하면 `docs/features/matchmaking/prd.md`와 `docs/features/matchmaking/trd.md`를 기준으로 이슈와 ADR을 생성한다.
+사용자가 `{feature}` 인자를 주면 해당 feature만 처리한다. 예를 들어 `$create-issues-adr matchmaking`처럼 요청하면 `$prd-read` projection인 `docs/features/matchmaking/prd.md`와 FE TRD인 `docs/features/matchmaking/trd.md`를 기준으로 이슈와 ADR을 생성한다.
 
 인자가 없으면 전체 feature를 기준으로 후보를 탐색한다. 사용자의 문맥이 특정 feature를 가리키면 그 feature만 처리하고, 범위가 불명확하거나 너무 넓으면 `docs/features/*/prd.md`와 `trd.md`가 모두 있는 feature 목록을 제시해 처리 범위를 확정한다.
 
@@ -43,15 +44,16 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 ## 진행 절차
 
 1. `{feature}` 인자가 있는지 확인하고 처리 범위를 확정한다.
-2. 입력 문서와 기존 후속 산출물을 읽는다.
-3. 가능하면 `scripts/scan_issue_ids.py --root .`를 실행해 기존 로컬 이슈 ID, ADR ID, GitHub Issue 연결 중복을 확인한다.
-4. feature별 사용자 시나리오, 화면/라우팅 책임, FE 상태 소유권, API/STOMP client 경계, REST/STOMP 계약 영향, 테스트 가능성을 기준으로 이슈 후보를 도출한다.
-5. ADR이 필요한 결정 후보를 별도로 도출한다.
-6. 사용자에게 feature별 issue map, 순차 의존 관계, 병렬 가능 이슈, ADR 후보를 제시하고 확정받는다.
-7. 확정된 범위에 따라 로컬 이슈 문서, ADR 문서, `docs/issue-map.md`, `docs/adr-index.md`를 생성하거나 갱신한다.
-8. 각 feature의 로컬 이슈/ADR 초안을 요약하고 사용자 확정을 받는다.
-9. GitHub Issue 생성 요청이 있으면 `references/github-issue-policy.md`를 읽고 승인 게이트를 진행한다.
-10. 최종적으로 생성/수정 파일, GitHub Issue 연결 여부, 남은 미확정 사항을 보고한다.
+2. `docs/prd.md`, `docs/features/{feature}/prd.md`가 없으면 `$prd-read` projection 누락으로 보고 이슈 생성을 중단한다. `docs/traceability.md`는 있으면 읽고, 없으면 선택 PRD projection 누락으로만 보고한다.
+3. 입력 문서와 기존 후속 산출물을 읽는다.
+4. 가능하면 `scripts/scan_issue_ids.py --root .`를 실행해 기존 로컬 이슈 ID, ADR ID, GitHub Issue 연결 중복을 확인한다.
+5. feature별 사용자 시나리오, 화면/라우팅 책임, FE 상태 소유권, API/STOMP client 경계, REST/STOMP 계약 영향, 테스트 가능성을 기준으로 이슈 후보를 도출한다.
+6. ADR이 필요한 결정 후보를 별도로 도출한다.
+7. 사용자에게 feature별 issue map, 순차 의존 관계, 병렬 가능 이슈, ADR 후보를 제시하고 확정받는다.
+8. 확정된 범위에 따라 로컬 이슈 문서, ADR 문서, `docs/issue-map.md`, `docs/adr-index.md`를 생성하거나 갱신한다.
+9. 각 feature의 로컬 이슈/ADR 초안을 요약하고 사용자 확정을 받는다.
+10. GitHub Issue 생성 요청이 있으면 `references/github-issue-policy.md`를 읽고 승인 게이트를 진행한다.
+11. 최종적으로 생성/수정 파일, GitHub Issue 연결 여부, 남은 미확정 사항을 보고한다.
 
 ## 이슈 작성 규칙
 

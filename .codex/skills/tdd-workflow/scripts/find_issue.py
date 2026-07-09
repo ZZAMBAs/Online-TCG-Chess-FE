@@ -84,11 +84,14 @@ def main() -> int:
         return 1
 
     issue_dir = matches[0]
+    local_issue_id = f"{feature}-{issue_number:03d}"
     result = {
         "argument": args.issue,
         "feature": feature,
         "issue_number_raw": issue_number_raw,
         "issue_number": issue_number,
+        "local_issue_id": local_issue_id,
+        "branch_name": f"feature/{local_issue_id}",
         "issue_dir": str(issue_dir.relative_to(root)),
         "issue_file": str((issue_dir / "issue.md").relative_to(root)),
         "refactor_log": str((issue_dir / "refactor-log.md").relative_to(root)),

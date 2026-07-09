@@ -1,4 +1,4 @@
 interface:
   display_name: "TDD Workflow"
-  short_description: "RED부터 보안 검토와 AC 검증까지 통합 실행"
-  default_prompt: "Use $tdd-workflow auth-1 to run RED, GREEN, BLUE, security review, and AC verification."
+  short_description: "이슈 브랜치에서 TDD 전체 흐름 실행"
+  default_prompt: "Use $tdd-workflow auth-1 to prepare feature/auth-001, then run RED, GREEN, BLUE, security review, and AC verification."

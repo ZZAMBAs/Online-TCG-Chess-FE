@@ -1,4 +1,4 @@
 interface:
   display_name: "Architecture Decision"
-  short_description: "인터뷰와 리뷰를 묶어 FE 아키텍처 확정"
-  default_prompt: "Use $architecture-decision to run architecture interview, review, bounded correction loops, and write dated fixed architecture decisions."
+  short_description: "FE 아키텍처 확정과 build/harness 반영"
+  default_prompt: "Use $architecture-decision to run architecture interview, review, bounded correction loops, write dated fixed architecture decisions, and apply approved build/harness settings."

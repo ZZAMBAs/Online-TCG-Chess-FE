@@ -18,6 +18,8 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 - `architecture-review` 결과 수정 사항이 있으면 `architecture-interview` 방식으로 질문, 추천안, 승인, 문서 보완을 다시 수행한다.
 - 인터뷰 보완과 리뷰 반복은 최대 3회까지만 허용한다. 3회 후에도 차단 이슈가 남으면 확정하지 않고 중단한다.
 - ADR, issue 분리, 심층 보안 리뷰, 운영 runbook 작성은 직접 수행하지 않고 후속 스킬 연계 항목으로 남긴다.
+- 최종 fixed architecture가 통과한 뒤, 사용자 승인이 있으면 결정된 빌드/테스트/정적 분석/하네스 기준을 반영하기 위한 `package.json`, lockfile, Vite/Vitest/TypeScript/ESLint/Prettier/Playwright 설정, Git hook `.mjs`, CI 설정, 기본 `src`/test scaffold를 생성하거나 수정할 수 있다.
+- 이 최종 구현 반영은 공통 FE 기반과 하네스 설정에만 한정한다. feature별 기능 구현, issue/ADR/TDD 산출물 작성은 수행하지 않는다.
 - 원천 문서에 없는 값을 임의 확정하지 않는다.
 
 ## 먼저 확인할 자료
@@ -48,6 +50,8 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 8. 보완한 문서를 다시 `$architecture-review`로 검토한다.
 9. 루프 카운트가 3을 넘으면 더 반복하지 않고 `architecture-decision-blocked`로 보고한다.
 10. 확정되면 `docs/architecture/fixed-{yyyymmdd}/`에 최종 문서를 작성하고 `docs/architecture/current-fixed.md`를 갱신한다.
+11. 사용자가 승인한 경우 fixed architecture의 build/harness 결정을 실제 FE repo 설정에 반영한다. 예: `package.json`, lockfile, `vite.config.*`, `vitest.config.*`, `tsconfig*.json`, ESLint/Prettier/Playwright 설정, `.github`, hook/helper `.mjs`, 기본 `src`/test scaffold.
+12. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
 
 ## 반복 루프 규칙
 
@@ -146,6 +150,7 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 - `docs/architecture/fixed-{yyyymmdd}/impl-fixed.md`, `infra-fixed.md`, `harness-fixed.md`가 존재한다.
 - `docs/architecture/current-fixed.md`가 최신 fixed 디렉터리를 가리킨다.
 - 남은 미확정, 상위 산출물 재검토, 후속 스킬 연계 항목이 보고되어 있다.
+- build/harness 설정을 반영한 경우, 수정한 설정 파일과 실행한 검증 명령이 보고되어 있다.
 
 ## 완료 보고
 
@@ -157,4 +162,6 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 - 생성 또는 갱신한 `fixed-{yyyymmdd}` 문서
 - 갱신한 `current-fixed.md`
 - Mermaid HTML 생성 여부
+- build/harness 설정 수정 여부와 수정 파일
+- 실행한 검증 명령과 결과
 - 남은 미확정 사항과 후속 스킬 연계 항목
