@@ -1,0 +1,8 @@
+set -e
+
+if ! node -e "const p = require('./package.json'); process.exit(p.scripts && p.scripts.lint ? 0 : 1);"; then
+  echo "pre-commit: package.json scripts.lint가 없어 lint 검사를 건너뜁니다."
+  exit 0
+fi
+
+npm run lint

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Commit"
+  short_description: "변경 검토 후 한국어 커밋 메시지 생성"
+  default_prompt: "Use $git-commit to review current changes, choose the representative Korean commit prefix and message, stage the right files, and create the commit."
