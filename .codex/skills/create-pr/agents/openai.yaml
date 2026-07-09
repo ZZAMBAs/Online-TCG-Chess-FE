@@ -1,4 +1,4 @@
 interface:
   display_name: "Create PR"
-  short_description: "검증 후 이슈 연결 PR 생성 절차"
-  default_prompt: "Use $create-pr to inspect current branch changes, find the related current-repo GitHub Issue, run full tests, draft a Korean PR with a same-repo closing keyword, and publish it after approval."
+  short_description: "커밋 정리 후 이슈 연결 PR 생성"
+  default_prompt: "Use $create-pr to inspect current branch changes, optionally use $git-commit for coherent work-unit commits, run full tests, draft a Korean PR with a same-repo closing keyword, and publish it after approval."

@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: 현재 브랜치의 변경 사항과 연결된 로컬/현재 repo GitHub Issue를 파악하고 전체 테스트를 통과시킨 뒤, 한국어 PR 초안을 작성해 사용자 승인 후 origin에 push하고 GitHub Pull Request를 생성해야 할 때 사용한다. git diff/status/log 기반 변경 요약, 테스트 검증, 현재 repo GitHub Issue closing keyword 연결, # 변경사항/# 검증/# 참고 형식의 PR 본문, 승인 게이트, gh CLI 또는 GitHub MCP/app connector를 통한 PR 생성, 실패 시 중단 보고에 사용한다.
+description: 현재 브랜치의 변경 사항과 연결된 로컬/현재 repo GitHub Issue를 파악하고, 필요하면 git-commit으로 작업 단위 커밋을 만든 뒤, 전체 테스트를 통과시켜 한국어 PR 초안을 작성하고 사용자 승인 후 origin에 push 및 GitHub Pull Request를 생성해야 할 때 사용한다. git diff/status/log 기반 변경 요약, 테스트 검증, 현재 repo GitHub Issue closing keyword 연결, # 변경사항/# 검증/# 참고 형식의 PR 본문, 승인 게이트, gh CLI 또는 GitHub MCP/app connector를 통한 PR 생성, 실패 시 중단 보고에 사용한다.
 ---
 
 # Create PR
@@ -13,6 +13,7 @@ description: 현재 브랜치의 변경 사항과 연결된 로컬/현재 repo G
 
 - 모든 사용자-facing 설명, PR 제목, PR 본문은 한국어로 작성한다.
 - PR 생성 전에는 반드시 현재 브랜치, 변경 파일, diff, 관련 커밋/원격 상태를 확인한다.
+- PR 범위에 미커밋 변경이 있고 하나 이상의 명확한 작업 단위로 나눌 수 있으면 `$git-commit`을 사용해 로컬 커밋을 만든 뒤 PR 초안을 작성할 수 있다.
 - 전체 테스트를 실행하고 통과 여부를 확인한다. 테스트 명령을 특정할 수 없으면 `README`, 빌드 파일, package/gradle/maven 설정, 기존 CI 설정을 확인해 repo에 맞는 전체 검증 명령을 도출한다.
 - 테스트 실패, 빌드 실패, 변경 내용 파악 실패, GitHub 인증/권한 실패, 원격 push 실패가 발생하면 PR 생성을 중단하고 원인과 다음 조치를 보고한다.
 - 사용자가 초안을 승인하기 전에는 원격 push, PR 생성, review 요청 같은 외부 변경을 하지 않는다.
@@ -40,12 +41,18 @@ description: 현재 브랜치의 변경 사항과 연결된 로컬/현재 repo G
    - staged/unstaged/untracked 파일을 모두 확인한다.
    - `git diff`, `git diff --staged`, 필요 시 `git diff --stat`과 파일별 diff를 읽어 변경 의도를 요약한다.
    - base branch가 확인되면 `git diff <base>...HEAD` 또는 PR 대상 범위의 커밋도 확인한다.
-4. 전체 테스트를 실행한다.
+4. 필요하면 `$git-commit`으로 작업 단위 커밋을 만든다.
+   - 미커밋 변경이 없고 PR 대상 커밋만 있으면 이 단계를 건너뛴다.
+   - 미커밋 변경이 PR 범위에 속하고 하나의 작업 단위로 명확하면 `$git-commit` 계약에 따라 커밋한다.
+   - 미커밋 변경이 여러 작업 단위로 명확히 나뉘면 각 단위마다 `$git-commit`을 사용할 수 있다.
+   - 변경 범위가 불명확하거나 무관한 사용자 작업이 섞였으면 커밋하지 않고 PR 초안 작성 전에 사용자 확인을 받는다.
+   - 커밋 후 `git status --short --branch`와 `git log --oneline --decorate --max-count=20`로 PR 대상 커밋을 다시 확인한다.
+5. 전체 테스트를 실행한다.
    - repo의 표준 전체 검증 명령을 우선한다. 예: `./gradlew test`, `./gradlew check`, `npm test`, `npm run test`, `mvn test`.
    - 하나의 전체 명령이 명확하면 그 명령을 사용한다.
    - 여러 계층의 검증이 표준이면 모두 실행한다.
    - 실행한 명령과 결과를 PR 초안의 `# 검증`에 기록한다.
-5. PR 제목과 본문 초안을 작성한다.
+6. PR 제목과 본문 초안을 작성한다.
    - 본문은 기본적으로 아래 형식을 사용한다.
 
 ```markdown
@@ -66,21 +73,22 @@ description: 현재 브랜치의 변경 사항과 연결된 로컬/현재 repo G
    - 현재 repo에 연결된 GitHub Issue가 있으면 `# 참고` 또는 본문 하단에 `Closes #{number}`를 넣는다.
    - 다른 repo의 GitHub Issue URL이 있으면 closing keyword 없이 일반 참고 링크로만 적는다.
    - 연결된 로컬 이슈가 있으면 `Local issue: docs/features/{feature}/issues/{feature}-{nnn}-{slug}/issue.md`를 적는다.
-6. 사용자에게 PR 제목과 본문 초안, 연결될 GitHub Issue, merge 시 자동 close 여부를 보여주고 “이 내용으로 push 및 PR 생성을 진행할지” 확인한다.
-7. 사용자가 승인하면 원격 브랜치에 push한다.
+7. 사용자에게 PR 제목과 본문 초안, 연결될 GitHub Issue, merge 시 자동 close 여부를 보여주고 “이 내용으로 push 및 PR 생성을 진행할지” 확인한다.
+8. 사용자가 승인하면 원격 브랜치에 push한다.
    - 필요하면 `git push -u origin <current-branch>`를 사용한다.
    - 이미 upstream이 있으면 일반 `git push`를 사용할 수 있다.
-8. PR을 생성한다.
+9. PR을 생성한다.
    - 우선 사용 가능한 GitHub 경로를 사용한다. `gh pr create`를 사용할 수 있으면 CLI로 생성한다.
    - GitHub MCP/app connector가 더 적합하거나 CLI가 실패하면 MCP/app connector를 사용할 수 있다.
    - base branch는 repo의 기본 브랜치 또는 현재 브랜치의 의도된 대상 브랜치를 확인해 사용한다. 확실하지 않으면 PR 생성 전에 사용자에게 확인한다.
-9. PR 생성 후 가능하면 PR 본문에 closing keyword가 포함됐는지 확인한다.
-10. 완료 시 PR URL, 사용한 push/PR 생성 경로, 연결된 GitHub Issue, 실행한 검증 명령을 간단히 보고한다.
+10. PR 생성 후 가능하면 PR 본문에 closing keyword가 포함됐는지 확인한다.
+11. 완료 시 PR URL, 사용한 push/PR 생성 경로, 연결된 GitHub Issue, 실행한 검증 명령을 간단히 보고한다.
 
 ## 실패 처리
 
 - 테스트가 실패하면 PR 생성을 중단한다. 실패한 명령, 핵심 에러, 수정 필요 지점을 보고한다.
 - 변경 내용이 PR로 올리기에 불명확하거나 서로 무관한 작업이 섞여 있으면 초안을 만들기 전에 범위 분리를 제안하고 사용자 결정을 기다린다.
+- `$git-commit`이 hook 실패, 메시지 규칙 실패, 범위 불명확으로 커밋하지 못하면 PR 생성을 중단하고 남은 staged/unstaged 상태를 보고한다.
 - 관련 GitHub Issue 후보가 여러 개이거나 현재 repo issue인지 확인할 수 없거나 closing keyword가 엉뚱한 issue를 닫을 위험이 있으면 PR 생성을 중단하고 사용자 확인을 받는다.
 - GitHub 인증, 권한, 네트워크, 원격 설정 문제로 push 또는 PR 생성이 실패하면 중단하고 실패한 단계와 재시도 조건을 보고한다.
 - 승인 전 외부 변경을 했거나 PR이 중복 생성될 위험이 생기면 즉시 멈추고 현재 상태를 보고한다.
@@ -92,5 +100,6 @@ description: 현재 브랜치의 변경 사항과 연결된 로컬/현재 repo G
 - PR URL
 - PR 제목
 - 연결된 GitHub Issue와 자동 close keyword
+- PR에 포함된 커밋과 이번 실행에서 새로 만든 커밋
 - 검증 결과
 - 남은 참고 사항이 있으면 한 줄 요약
