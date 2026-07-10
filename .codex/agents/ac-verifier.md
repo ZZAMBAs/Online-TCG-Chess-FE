@@ -1,6 +1,6 @@
 ---
 name: ac-verifier
-description: Online-TCG-Chess-FE의 로컬 feature 이슈 Acceptance Criteria가 TDD RED/GREEN/BLUE/security-review 결과와 실제 FE 구현으로 모두 충족되는지 검증하는 읽기 전용 Subagent. TDD 워크플로우 마지막 단계, 이슈 완료 전 AC 충족 감사, 테스트 통과 이후 요구사항 누락 검증을 요청받았을 때 사용한다.
+description: Online-TCG-Chess-FE의 로컬 feature 또는 foundation 이슈 Acceptance Criteria가 TDD RED/GREEN/BLUE/security-review 결과와 실제 FE 구현으로 모두 충족되는지 검증하는 읽기 전용 Subagent.
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -58,6 +58,8 @@ python3 .codex/skills/tdd-blue/scripts/find_issue.py auth-1 --root .
 13. 필요 시 `git diff --name-only`, `git diff`, `git diff --cached`
 
 문서가 없으면 임의로 보완하지 말고 누락된 자료와 검증 영향도를 보고한다.
+
+`slice_type: foundation`은 feature PRD가 없어도 issue가 참조하는 approved root TRD, fixed architecture, 관련 디자인 기준으로 AC 근거를 확인한다. UI foundation이면 token/primitive public surface와 후속 feature 소비 가능성을 구현 및 테스트에서 확인한다.
 
 ## 검증 방법
 

@@ -1,6 +1,6 @@
 ---
 name: create-issues-adr
-description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/TRD, architecture, storyboard 산출물을 기준으로 특정 {feature} 또는 전체 feature의 순차 의존성을 가진 수직 슬라이스 로컬 이슈, feature 단위 ADR, GitHub Issue 연결을 한국어로 생성·갱신해야 할 때 사용한다. issue 분리, Given-When-Then AC, TDD 가능한 FE 구현 이슈, depends_on 실행 게이트, REST/STOMP 클라이언트/계약 테스트 관점, ADR 대안 비교 표, docs/issue-map.md와 docs/adr-index.md 갱신, GitHub Issue 제목 접두어 [{feature}-{nnn}], .github/ISSUE_TEMPLATE/feature-implementation.md 적용, gh CLI 및 GitHub MCP/app connector fallback에 사용하며 spec/prd/trd/storyboard 원문 수정, 요구사항 인터뷰, 스펙 리뷰, issue template 작성은 하지 않는다.
+description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 PRD/TRD, architecture, storyboard 산출물을 기준으로 feature 수직 슬라이스 또는 공통 foundation 로컬 이슈, ADR, GitHub Issue 연결을 한국어로 생성·갱신해야 할 때 사용한다. Given-When-Then AC, TDD 가능한 FE 구현 이슈, depends_on 게이트, 공통 UI/token/app-shell 기반, REST/STOMP 계약 테스트 관점, issue/ADR map 갱신에 사용하며 원천 문서는 수정하지 않는다.
 ---
 
 # Create Issues ADR
@@ -15,9 +15,11 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 - `docs/spec/*`, `docs/contracts/*`, `.cache/prd-read/docs/*`의 PRD, `docs/trd.md`, `docs/features/{feature}/trd.md`, `docs/design/*`는 입력 문서로만 취급하고 수정하지 않는다.
 - `.cache/prd-read/docs/prd.md`, `.cache/prd-read/docs/features/{feature}/prd.md`, `.cache/prd-read/docs/traceability.md`는 `$prd-read`가 관리하는 PRD 캐시다. PRD 내용이 없거나 stale 의심이 있으면 직접 작성하지 말고 `$prd-read`를 먼저 실행한다.
 - PRD/TRD가 없거나 확정되지 않았으면 이슈 생성을 멈추고 먼저 `$prd-read`와 `create-trd` 산출물 확정을 요청한다.
+- 예외적으로 `foundation` scope는 feature PRD 없이 fixed architecture와 승인된 root TRD의 공통 기반 handoff를 입력으로 사용할 수 있다. UI token/primitive 기반이면 승인된 디자인 기준도 필요하다.
 - 기존 `docs/features/{feature}/issues/*`, `docs/features/{feature}/adr/*`, `docs/issue-map.md`, `docs/adr-index.md`가 있으면 먼저 읽고 중복 생성 대신 보완한다.
 - 로컬 문서를 원천 추적 기준으로 삼는다. GitHub Issue 생성은 사용자가 명시적으로 요청하고 승인한 경우에만 수행한다.
 - 이슈는 PRD 사용자 시나리오와 수용 기준을 구현 가능한 수직 슬라이스로 나눈다. 계층별 수평 작업만 나열하는 이슈는 만들지 않는다.
+- `slice_type: foundation`은 cross-feature 기술 기반을 제품 시나리오와 분리하는 예외다. 후속 feature가 사용할 public surface와 검증 가능한 결과를 반드시 둔다.
 - 같은 feature의 이슈는 기본적으로 낮은 번호부터 순차 진행한다. 후속 이슈는 이전 이슈의 AC 충족과 테스트 통과를 전제로 작성한다.
 - 각 수직 슬라이스 이슈는 FE TDD로 구현할 수 있어야 하며, 실패 테스트 작성에서 시작할 수 있을 만큼 AC와 unit/component/API-client/STOMP-client/계약 테스트 관점을 구체화한다.
 - ADR은 단순 결론 문서가 아니다. 현재 프로젝트 상황, 비교 대안, 선택 이유, 선택 결과를 꼼꼼히 기록한다.
@@ -31,6 +33,8 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 
 지정된 `{feature}`에 PRD/TRD가 없으면 유사한 feature 폴더를 추측해 진행하지 말고, 누락된 경로를 보고하고 중단한다.
 
+`foundation`을 지정하면 cross-feature 공통 기반만 처리한다. 입력은 `docs/trd.md`, fixed architecture, 관련 storyboard/design 기준이며 제품 기능을 foundation 이슈에 섞지 않는다.
+
 ## 입력 확인
 
 우선 존재하는 문서만 읽는다.
@@ -42,14 +46,15 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 - 아키텍처 산출물: `docs/architecture/*`
 - BE 요구사항: 필요 시 프로젝트 로컬 `$spec-read`
 - 기존 후속 산출물: `docs/features/{feature}/issues/*`, `docs/features/{feature}/adr/*`, `docs/issue-map.md`, `docs/adr-index.md`
+- foundation 입력: `docs/trd.md`, `docs/architecture/current-fixed.md`와 active fixed 문서, 존재하는 `docs/design/design-baseline.md`, 기존 `docs/features/foundation/issues/*`
 
 ## 진행 절차
 
 1. `{feature}` 인자가 있는지 확인하고 처리 범위를 확정한다.
-2. `.cache/prd-read/docs/prd.md`, `.cache/prd-read/docs/features/{feature}/prd.md`가 없으면 `$prd-read` 캐시 누락으로 보고 이슈 생성을 중단한다. `.cache/prd-read/docs/traceability.md`는 있으면 읽고, 없으면 선택 PRD 캐시 누락으로만 보고한다.
+2. 일반 feature는 `.cache/prd-read/docs/prd.md`, `.cache/prd-read/docs/features/{feature}/prd.md`가 없으면 중단한다. `foundation`은 feature PRD 대신 approved root TRD와 fixed architecture가 없으면 중단한다.
 3. 입력 문서와 기존 후속 산출물을 읽는다.
 4. 가능하면 `scripts/scan_issue_ids.py --root .`를 실행해 기존 로컬 이슈 ID, ADR ID, GitHub Issue 연결 중복을 확인한다.
-5. feature별 사용자 시나리오, 화면/라우팅 책임, FE 상태 소유권, API/STOMP client 경계, REST/STOMP 계약 영향, 테스트 가능성을 기준으로 이슈 후보를 도출한다.
+5. 일반 feature는 사용자 시나리오와 수직 슬라이스를 기준으로, foundation은 공통 token/primitive/app shell/testable public surface를 기준으로 이슈 후보를 도출한다.
 6. ADR이 필요한 결정 후보를 별도로 도출한다.
 7. 사용자에게 feature별 issue map, 순차 의존 관계, 병렬 가능 이슈, ADR 후보를 제시하고 확정받는다.
 8. 확정된 범위에 따라 로컬 이슈 문서, ADR 문서, `docs/issue-map.md`, `docs/adr-index.md`를 생성하거나 갱신한다.
@@ -76,6 +81,7 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 - 각 이슈에는 TDD 진행 순서를 포함한다. 먼저 실패해야 할 테스트를 쓰고, 최소 구현, 리팩터링, 하네스/정적 분석 검증 순으로 적는다.
 - REST/STOMP가 사용자에게 보이는 결과이면 unit/component 테스트뿐 아니라 API client, STOMP client, 계약 테스트 관점을 포함한다. 하네스가 아직 없으면 기능 이슈에 묻지 말고 하네스 선행 작업 또는 `미확정 사항`으로 분리한다.
 - 수용 기준과 테스트는 PRD/TRD의 요구사항과 연결될 만큼 구체적으로 작성한다.
+- UI foundation AC는 구체 시각값을 임의 발명하지 않고 승인된 디자인 기준과 fixed architecture를 참조한다. RED는 semantic variant, 접근성, public props/state를 검증하고 실제 token/primitive CSS는 GREEN이 구현하도록 분리한다.
 
 ## ADR 작성 규칙
 

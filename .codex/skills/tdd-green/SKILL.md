@@ -1,6 +1,6 @@
 ---
 name: tdd-green
-description: Online-TCG-Chess-FE의 로컬 feature 이슈 문서의 TDD RED 결과와 실패 테스트를 기준으로 FE production 최소 구현을 작성해 TDD GREEN 단계를 수행해야 할 때 사용한다. 인자로 auth-1, auth-001, auth-issues-1, xxx-yyy-1처럼 마지막 토큰이 숫자인 이슈 식별자를 받아 이슈, 선행 이슈, RED 결과, 아키텍처 문서를 확인하고, src의 UI/API client/state/STOMP client 구현 및 필요한 테스트 보정만 최소 수정한다. package.json, 테스트 하네스, CI 설정, 광범위 리팩터링, E2E/Playwright는 다루지 않는다.
+description: Online-TCG-Chess-FE의 로컬 feature 또는 foundation 이슈의 TDD RED 결과와 실패 테스트를 기준으로 FE production 최소 구현을 작성해 GREEN 단계를 수행해야 할 때 사용한다. src의 UI/style/token/primitive/API client/state/STOMP client와 필요한 resource만 최소 수정하며 package 설정, 하네스, 광범위 리팩터링, E2E는 다루지 않는다.
 ---
 
 # TDD GREEN
@@ -41,6 +41,8 @@ python3 .codex/skills/tdd-green/scripts/find_issue.py auth-1 --root .
 
 PRD/TRD, RED 결과, 테스트 파일, 아키텍처 문서, 구현 대상 컴포넌트·store·API client·STOMP client를 확인할 수 없으면 추측하지 말고 사용자에게 확인을 요청한다. 아키텍처 문서가 없거나 미확정이면 production 구현을 작성하지 않는다.
 
+`slice_type: foundation`은 feature PRD 대신 issue가 참조하는 approved root TRD, fixed architecture, 관련 디자인 기준을 사용한다. UI foundation인데 승인된 디자인 기준을 확인할 수 없으면 token 값이나 시각 variant를 추정하지 말고 `blocked`로 보고한다.
+
 ## 진입 게이트
 
 - 선행 이슈가 있으면 해당 이슈의 AC 충족과 테스트 통과가 문서상 확인되는지 확인한다.
@@ -54,6 +56,7 @@ PRD/TRD, RED 결과, 테스트 파일, 아키텍처 문서, 구현 대상 컴포
 ## 변경 허용 범위
 
 - `src` 아래 FE production 코드 생성 또는 수정
+- `src` 아래 이슈 범위의 style, semantic token, 공통 UI primitive, app-shell production 코드 생성 또는 수정
 - feature 구현에 꼭 필요한 production resource, fixture, schema, static asset 수정
 - RED 테스트가 AC와 다르게 작성되었거나 단순 오탈자/import/fixture 오류가 있을 때의 테스트 또는 test resource 보정
 - 현재 이슈 문서의 `## TDD GREEN 결과` 섹션 생성 또는 최신 스냅샷 갱신
@@ -73,6 +76,7 @@ PRD/TRD, RED 결과, 테스트 파일, 아키텍처 문서, 구현 대상 컴포
 ## 구현 규칙
 
 - architecture 문서가 있으면 routing, page/component 경계, state ownership, API/STOMP adapter 배치, 스타일링 경계를 따른다.
+- foundation 이슈는 fixed architecture의 저장 위치와 naming, 승인된 디자인 기준의 token/variant를 따르고 후속 feature가 사용할 최소 public surface만 구현한다.
 - architecture 문서가 없거나 미확정이면 구현하지 말고 `blocked`로 보고한다.
 - architecture 문서와 현재 코드가 충돌하면 구현하지 말고 drift를 보고한다.
 - production skeleton이 필요하면 테스트가 요구하는 public surface만 만든다.

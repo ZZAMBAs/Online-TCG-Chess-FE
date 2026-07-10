@@ -1,6 +1,6 @@
 ---
 name: tdd-blue
-description: Online-TCG-Chess-FE의 로컬 feature 이슈 문서의 TDD GREEN 결과와 production 변경을 기준으로 FE 코드의 BLUE 리팩터링 단계를 수행해야 할 때 사용한다. 인자로 auth-1, auth-001, auth-issues-1, xxx-yyy-1처럼 마지막 토큰이 숫자인 이슈 식별자를 받아 issue.md를 찾고, RED/GREEN 결과와 아키텍처 문서를 확인한 뒤, 새 기능 추가와 테스트 수정 없이 GREEN 변경 범위 안에서 컴포넌트 책임, state ownership, API/STOMP adapter 경계, 중복 제거, 네이밍, 컨벤션, 오버엔지니어링 경계를 점검하고 필요한 최소 리팩터링만 수행한다. E2E/Playwright는 다루지 않는다.
+description: Online-TCG-Chess-FE의 로컬 feature 또는 foundation 이슈의 GREEN 결과와 production 변경을 기준으로 BLUE 리팩터링을 수행해야 할 때 사용한다. 새 기능·테스트 수정 없이 GREEN 범위에서 컴포넌트, style/token/primitive, state, API/STOMP 경계와 중복·네이밍을 최소 정리하며 E2E는 다루지 않는다.
 ---
 
 # TDD BLUE
@@ -40,6 +40,8 @@ python3 .codex/skills/tdd-blue/scripts/find_issue.py auth-1 --root .
 
 PRD/TRD, GREEN 결과, 아키텍처 문서, 리팩터링 대상 파일을 확인할 수 없으면 추측하지 말고 `blue-blocked`로 기록한다.
 
+`slice_type: foundation`은 feature PRD 대신 issue가 참조하는 approved root TRD, fixed architecture, 관련 디자인 기준을 근거로 사용한다.
+
 ## 진입 게이트
 
 - 선행 이슈가 있으면 해당 이슈의 AC 충족, 테스트 통과, BLUE 완료 또는 BLUE 불필요가 문서상 확인되는지 확인한다.
@@ -71,6 +73,7 @@ PRD/TRD, GREEN 결과, 아키텍처 문서, 리팩터링 대상 파일을 확인
 ## 리팩터링 규칙
 
 - `references/refactor-checklist.md`를 기준으로 컴포넌트 책임, state ownership, API/STOMP adapter 경계, 중복, 네이밍, 컨벤션, 오버엔지니어링을 점검한다.
+- foundation 변경에서는 token 중복, primitive variant 책임, 전역 style 누수와 후속 feature가 우회할 수 있는 비공개 경계를 함께 점검한다.
 - 테스트를 더 쉽게 통과시키기 위한 동작 변경은 하지 않는다.
 - public component props/events, route contract, REST/STOMP payload, 오류 포맷, 사용자 표시 문구의 의미는 기존 AC와 GREEN 테스트가 보장하는 동작을 유지한다.
 - 구조 개선은 GREEN 변경을 이해하기 쉽게 만드는 최소 수준으로 제한한다.

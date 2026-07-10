@@ -3,9 +3,11 @@
 ## 입력
 
 - `$spec-read`가 확인한 BE 요구사항 캐시
-- `docs/design/storyboard-manifest.json`
-- `docs/design/storyboard-pages.md`
-- `docs/design/storyboard/fragments/*.html`
+- 존재하는 경우의 `docs/design/storyboard-manifest.json`
+- 존재하는 경우의 `docs/design/storyboard-pages.md`
+- 존재하는 경우의 `docs/design/storyboard/fragments/*.html`
+
+세 storyboard 산출물이 모두 없어도 신규 프로젝트 bootstrap으로 정상 진행한다.
 
 ## 페이지 분리 기준
 
@@ -21,6 +23,7 @@
 
 - 새 page id를 만들기 전에 manifest의 `pages[].requirements`, `pages[].notes`, `pages[].id`, `pages[].title`을 확인한다.
 - `docs/design/storyboard/fragments/*.html`에서 요구사항 키워드, 화면명, 주요 버튼 문구를 검색한다.
+- 검색할 기존 파일이 없으면 `matches: []`로 기록하고 새 page id를 만든다.
 - 중복이면 새 파일을 만들지 말고 기존 page에 다음 정보를 추가한다.
   - 연결된 요구사항
   - 보강해야 할 상태
@@ -57,6 +60,7 @@
 - `spec.be_commit` 또는 `spec.sha256`을 기록한다.
 - `pages` 순서는 최종 HTML 탐색 순서로 둔다.
 - 새 페이지의 초기 `status`는 `draft` 또는 `needs-review`로 둔다.
+- 새 페이지의 기본 fidelity는 `structure`로 두고 `visual_reference: null`, `representative_states: []`, `component_patterns: []`를 기록한다.
 - 루트 페이지는 `parent_id: null`로 둔다.
 - 하위 페이지는 `parent_id`에 단일 부모 page id를 둔다.
 - 여러 화면에서 진입 가능하면 `entry_points`에 모든 출발 page id를 둔다.

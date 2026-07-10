@@ -20,6 +20,8 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 - ADR, issue 분리, 심층 보안 리뷰, 운영 runbook 작성은 직접 수행하지 않고 후속 스킬 연계 항목으로 남긴다.
 - 최종 fixed architecture가 통과한 뒤, 사용자 승인이 있으면 결정된 빌드/테스트/정적 분석/하네스 기준을 반영하기 위한 `package.json`, lockfile, Vite/Vitest/TypeScript/ESLint/Prettier/Playwright 설정, Git hook `.mjs`, CI 설정, 기본 `src`/test scaffold를 생성하거나 수정할 수 있다.
 - 이 최종 구현 반영은 공통 FE 기반과 하네스 설정에만 한정한다. feature별 기능 구현, issue/ADR/TDD 산출물 작성은 수행하지 않는다.
+- 공통 scaffold에는 style entry와 token/primitive가 놓일 디렉터리·import surface를 만들 수 있지만, 승인된 디자인 기준의 실제 token 값, 공통 UI primitive의 시각 구현, feature/page CSS는 작성하지 않는다. 해당 production 구현은 후속 foundation/feature 이슈가 소유한다.
+- `docs/design/design-baseline.md` 같은 승인된 디자인 기준 산출물이 있으면 스타일링 방식과 component boundary 결정의 입력으로 사용한다. 없으면 source-of-truth와 소유 경계만 확정하고 상세 시각값을 임의 결정하지 않는다.
 - 원천 문서에 없는 값을 임의 확정하지 않는다.
 
 ## 먼저 확인할 자료
@@ -32,6 +34,7 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 - `.codex/skills/architecture-interview/references/document-templates.md`
 - `.codex/skills/architecture-review/references/review-ledger-schema.md`
 - `docs/design/*`
+- 존재하는 경우의 `docs/design/design-baseline.md`, `docs/design/design-specimen.*`
 - `.cache/prd-read/docs/prd.md`, `docs/trd.md`, `.cache/prd-read/docs/features/*/prd.md`, `docs/features/*/trd.md`
 - `docs/contracts/*`
 - `docs/architecture/*`
@@ -51,7 +54,8 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 9. 루프 카운트가 3을 넘으면 더 반복하지 않고 `architecture-decision-blocked`로 보고한다.
 10. 확정되면 `docs/architecture/fixed-{yyyymmdd}/`에 최종 문서를 작성하고 `docs/architecture/current-fixed.md`를 갱신한다.
 11. 사용자가 승인한 경우 fixed architecture의 build/harness 결정을 실제 FE repo 설정에 반영한다. 예: `package.json`, lockfile, `vite.config.*`, `vitest.config.*`, `tsconfig*.json`, ESLint/Prettier/Playwright 설정, `.github`, hook/helper `.mjs`, 기본 `src`/test scaffold.
-12. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
+12. 실제 디자인 token, 공통 UI primitive, feature CSS 구현 후보는 fixed 문서의 후속 foundation/feature 이슈 handoff로 남긴다.
+13. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
 
 ## 반복 루프 규칙
 
@@ -107,7 +111,7 @@ docs/architecture/fixed-{yyyymmdd}/
   harness-fixed.md
 ```
 
-- `impl-fixed.md`: FE 구현 아키텍처, 런타임, 라우팅, 상태, API/STOMP client, 모듈/컴포넌트/스타일링 경계, TRD handoff 제약을 기록한다.
+- `impl-fixed.md`: FE 구현 아키텍처, 런타임, 라우팅, 상태, API/STOMP client, 모듈/컴포넌트/스타일링 경계, 디자인 기준 source 상태, foundation/TRD handoff 제약을 기록한다.
 - `infra-fixed.md`: FE 서버/배포 인프라, hosting/CDN/reverse proxy, 환경 전략, 보안 헤더, 관측, sourcemap, 비용/용량 guardrail을 기록한다.
 - `harness-fixed.md`: CI/CD, typecheck/lint/test/e2e, 정적 분석, Git hook mjs, contract drift, generated client/mock drift, dependency/supply-chain gate를 기록한다.
 
@@ -151,6 +155,7 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 - `docs/architecture/current-fixed.md`가 최신 fixed 디렉터리를 가리킨다.
 - 남은 미확정, 상위 산출물 재검토, 후속 스킬 연계 항목이 보고되어 있다.
 - build/harness 설정을 반영한 경우, 수정한 설정 파일과 실행한 검증 명령이 보고되어 있다.
+- 실제 token/primitive/page CSS를 architecture scaffold에 섞지 않고 후속 foundation/feature 구현 경로가 기록되어 있다.
 
 ## 완료 보고
 

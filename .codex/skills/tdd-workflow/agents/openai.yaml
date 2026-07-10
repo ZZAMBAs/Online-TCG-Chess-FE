@@ -1,4 +1,4 @@
 interface:
   display_name: "TDD Workflow"
-  short_description: "이슈 브랜치에서 TDD와 단위 커밋 실행"
-  default_prompt: "Use $tdd-workflow auth-1 to prepare feature/auth-001, run RED, GREEN, BLUE, security review, optional $git-commit work-unit commits, and AC verification."
+  short_description: "기능·공통 기반 이슈의 TDD 전체 흐름 실행"
+  default_prompt: "Use $tdd-workflow foundation-1 to run RED, GREEN, BLUE, security review, and AC verification for a feature or foundation issue."

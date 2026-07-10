@@ -22,7 +22,7 @@ id: "{feature}-{nnn}"
 feature: "{feature}"
 title: "{title}"
 status: "draft"
-slice_type: "vertical"
+slice_type: "vertical | foundation"
 github_issue: null
 github_url: null
 source_documents:
@@ -35,6 +35,8 @@ depends_on: []
 ```
 
 `depends_on`은 참고용 링크가 아니라 TDD 시작 전 실행 게이트다. 같은 feature의 후속 번호 이슈는 기본적으로 이전 번호 이슈의 AC 충족과 테스트 통과를 전제로 하며, 독립 또는 병렬 가능 이슈만 빈 배열을 사용할 수 있다.
+
+`foundation` 이슈는 `feature: "foundation"`, `slice_type: "foundation"`을 사용한다. feature PRD 대신 approved root TRD, fixed architecture, 관련 storyboard/design 기준을 `source_documents`에 기록한다.
 
 ## 본문 형식
 
@@ -57,6 +59,8 @@ depends_on: []
 ## 관련 사용자 시나리오
 
 PRD의 관련 사용자 시나리오를 인용 또는 요약한다.
+
+foundation 이슈는 제품 사용자 시나리오 대신 `공통 기반 시나리오`로 후속 feature가 사용할 public surface, 실패 시 차단되는 기능, 검증 가능한 결과를 적는다.
 
 - 출처:
 - 시나리오:
@@ -98,6 +102,7 @@ AC는 PRD 사용자 시나리오에서 도출하고 Given-When-Then으로 작성
 - 중복 요청/멱등성 테스트:
 - 정적 분석 또는 하네스 검사: 하네스가 없으면 기능 이슈에 묻지 말고 별도 선행 작업 또는 미확정 사항으로 분리한다.
 - 필요 시 수동 검증:
+- Foundation 테스트: token/primitive/app shell의 public variant, semantic DOM, keyboard/focus, responsive contract 관점을 적는다.
 
 ## 구현 메모
 
@@ -138,6 +143,7 @@ AC는 PRD 사용자 시나리오에서 도출하고 Given-When-Then으로 작성
 - 하나의 이슈는 한 PR에서 검토 가능한 수직 슬라이스 크기로 유지한다.
 - 사용자 시나리오 하나가 너무 크면 "정상 흐름", "권한/상태 경계", "예외/실패 처리", "운영 관측성"처럼 독립 검증 가능한 수직 슬라이스로 나눈다.
 - 공통 기반 작업은 기능 이슈에 묻지 말고 별도 이슈로 만든다. 단, 그 이슈도 가능한 한 TDD 가능한 결과와 검증 기준을 가져야 한다.
+- foundation 이슈는 root TRD와 fixed architecture가 승인된 경우에만 만들며, UI foundation이면 승인된 디자인 기준 경로가 있어야 한다.
 - 후속 번호 이슈는 기본적으로 이전 번호 이슈 완료 후 진행한다. 병렬 가능 이슈는 의존 관계 섹션에 독립 사유를 남긴다.
 - 수용 기준을 Given-When-Then으로 독립 검증할 수 없으면 더 작게 나눈다.
 - 경계와 예외 AC가 없는 이슈는 기본적으로 불완전한 이슈로 간주한다. 근거가 부족하면 미확정 사항으로 남긴다.

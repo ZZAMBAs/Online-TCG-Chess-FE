@@ -35,6 +35,7 @@
 - `.story-note`에는 페이지 고유의 화면 의미, 상호작용 의도, 구현 참고사항만 둔다.
 - `.dev-state`에는 사용자 문구처럼 보이면 안 되는 상태명, 이벤트명, 조건명을 둔다.
 - "스토리보드 주석이란" 같은 공통 안내는 쓰지 않는다.
+- `.actual-ui`에는 화면 목적을 판단할 수 있는 semantic form, input, button, list/table, board, dialog/sheet 구조를 둔다. 화면 전체를 설명 카드나 placeholder 문장만으로 대체하지 않는다.
 
 ## PC/Mobile
 
@@ -58,6 +59,8 @@
 - 색상 팔레트, spacing, radius, typography, 실제 컴포넌트 스타일을 확정하지 않는다.
 - Tailwind, styled-components, theme token, 컴포넌트 라이브러리 규칙을 흉내 내지 않는다.
 - 페이지별 스타일을 추가하기보다 의미 있는 HTML 구조와 class 이름을 우선한다.
+- `structure` fidelity에서는 실제 디자인을 흉내 내기 위한 색상·그림자·상세 spacing을 넣지 않는다.
+- `visual_reference`가 있어도 해당 문서의 페이지 전용 CSS를 복사하지 않는다. 보존할 대상은 정보 위계, 영역 배치, CTA와 상태 표현이다.
 
 ## Manifest 갱신
 
@@ -67,3 +70,5 @@
 - 하위 페이지 fragment를 작성하거나 수정하면 `parent_id`와 `entry_points`가 올바른지 확인한다.
 - PC/Mobile 차이, 주요 상호작용 결과, TRD 이후 스타일링 결정 필요 항목을 `notes`나 `handoff`에 남긴다.
 - 승인된 표현 원칙은 page note가 아니라 manifest의 `design_rules`에 둔다.
+- 신규 page는 `fidelity: structure`로 시작한다. 참고 자산이 없으면 `visual_reference: null`을 유지하고 승인 차단 사유로 삼지 않는다.
+- `representative_states`에는 fragment에서 실제로 비교 가능한 상태만 기록하고, `component_patterns`에는 구현 기술과 무관한 의미 패턴을 기록한다.

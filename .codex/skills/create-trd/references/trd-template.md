@@ -40,6 +40,8 @@
 
 ## UI Interaction and Storyboard Traceability
 
+## Design System Consumption and Visual Acceptance
+
 ## Security, Privacy, and Abuse Considerations
 
 ## Accessibility and Responsive Requirements
@@ -59,3 +61,5 @@
 - REST/STOMP 섹션은 해당 feature에 없으면 `해당 없음`으로 둔다.
 - 미확정 endpoint, payload, message type, error code, 권한 정책은 이름을 만들지 말고 `Unresolved Dependencies`에 owner와 필요한 후속 절차를 적는다.
 - `Test Strategy for Issue Slicing`은 후속 `create-issues-adr`가 이슈별 Given-When-Then과 TDD 테스트 관점으로 쪼갤 수 있는 수준으로 쓴다.
+- `Design System Consumption and Visual Acceptance`에는 확인한 디자인 기준 source, 사용할 semantic token/component pattern, responsive/a11y 기대, 브라우저에서 확인할 대표 상태를 적는다. 디자인 기준이 없으면 추정값 대신 `미확정`과 owner를 남긴다.
+- cross-feature token, primitive, app shell 요구는 root TRD의 foundation handoff로 올리고 feature별로 다시 결정하지 않는다.

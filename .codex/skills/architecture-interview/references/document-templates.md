@@ -21,11 +21,13 @@
 ## 모듈 경계와 import 규칙
 ## 컴포넌트 경계
 ## 스타일링과 디자인 시스템 경계
+## 디자인 기준 Source와 승인 상태
 ## 디자이너 협업과 Handoff
 ## Breakpoint와 Responsive 기준
 ## Accessibility Baseline
 ## Storybook 또는 Component Catalog
 ## Storyboard-to-Component Traceability
+## Foundation Issue Handoff
 ## 공통 에러/로딩/empty/permission UX
 ## 정적 분석과 강제 규칙
 ## 테스트와 품질 게이트

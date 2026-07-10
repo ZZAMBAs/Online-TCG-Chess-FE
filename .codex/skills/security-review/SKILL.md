@@ -1,6 +1,6 @@
 ---
 name: security-review
-description: Online-TCG-Chess-FE에서 TDD BLUE 이후 또는 별도 e2e-test 이후 로컬 feature 이슈의 FE production 변경을 독립 보안 검증해야 할 때 사용한다. 인자로 auth-1, auth-001, auth-issues-1, xxx-yyy-1처럼 마지막 토큰이 숫자인 이슈 식별자를 받아 issue.md, TDD GREEN 결과, refactor-log.md, 선택적으로 e2e-test 산출물, 관련 spec/contract/architecture, git diff를 확인하고 UI/API client/STOMP client/state 변경의 보안 위험을 검토한다. Medium 이상은 차단 사항으로 보고 메인 에이전트가 수정 후 재검증하며, 결과는 현재 이슈 디렉터리의 security-review.md에 최신 스냅샷으로 기록한다.
+description: Online-TCG-Chess-FE에서 TDD BLUE 이후 또는 별도 e2e-test 이후 로컬 feature/foundation 이슈의 FE production 변경을 독립 보안 검증해야 할 때 사용한다. UI/style/primitive/API/STOMP/state 변경과 관련 문서·diff를 검토하고 Medium 이상을 차단하며 security-review.md에 최신 결과를 기록한다.
 ---
 
 # Security Review
@@ -41,6 +41,8 @@ python3 .codex/skills/security-review/scripts/find_issue.py auth-1 --root .
 12. 로그 기록 계약인 `references/security-review-contract.md`
 
 PRD/TRD, GREEN 결과, BLUE 결과, 변경 파일, 보안 요구사항을 확인할 수 없으면 추측하지 말고 `security-blocked`로 기록한다. 단, 사용자가 명시적으로 e2e-test 이후 보안 검토를 요청한 경우에는 e2e-test 산출물을 추가 근거로 읽되, TDD 산출물이 없으면 누락 영향을 기록한다.
+
+`slice_type: foundation`은 feature PRD 대신 issue가 참조하는 root TRD, fixed architecture, 관련 디자인 기준을 사용하고 공통 UI primitive의 안전한 렌더링·focus 처리·전역 style 경계를 검토한다.
 
 ## 진입 게이트
 

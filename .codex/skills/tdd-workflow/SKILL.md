@@ -1,6 +1,6 @@
 ---
 name: tdd-workflow
-description: Online-TCG-Chess-FE의 로컬 feature 이슈를 대상으로 FE TDD 전체 흐름을 오케스트레이션해야 할 때 사용한다. 인자로 auth-1, auth-001, auth-issues-1, xxx-yyy-1처럼 마지막 토큰이 숫자인 이슈 식별자를 받아 feature/{feature}-{nnn} 브랜치를 준비한 뒤 tdd-red, tdd-green, tdd-blue, security-review를 순서대로 실행하고, 필요하면 작업 단위마다 git-commit으로 커밋하며, 마지막에는 .codex/agents/ac-verifier.md 기반 서브에이전트로 AC 충족 여부를 독립 검증한다. 요구사항과 기존 테스트는 수정하지 않으며, 위험 지점은 사용자 게이트로 멈추고, AC 검증 실패 시 RED부터 재진입하되 총 AC 검증 횟수는 3회로 제한한다. E2E는 별도 e2e-test 스킬 책임이며, security-review는 이미 존재하는 e2e-test 산출물을 참고할 수 있다.
+description: Online-TCG-Chess-FE의 로컬 feature 또는 foundation 이슈를 대상으로 FE TDD 전체 흐름을 오케스트레이션해야 할 때 사용한다. 이슈 식별자로 브랜치를 준비한 뒤 tdd-red, tdd-green, tdd-blue, security-review, AC verifier를 순서대로 실행하고, 요구사항과 기존 테스트를 수정하지 않은 채 최대 3회 AC 검증을 관리한다. E2E는 별도 스킬 책임이다.
 ---
 
 # TDD Workflow
@@ -25,7 +25,7 @@ python3 .codex/skills/tdd-workflow/scripts/find_issue.py auth-1 --root .
 오케스트레이션에 필요한 문서만 직접 읽고, 단계별 세부 문서와 변경 규칙은 각 하위 스킬 계약에 위임한다.
 
 1. `scripts/find_issue.py`가 찾은 `issue.md`와 출력한 `branch_name`
-2. 현재 이슈의 `## Acceptance Criteria`
+2. 현재 이슈의 `slice_type`과 `## Acceptance Criteria`
 3. 하위 단계 계약인 `.codex/skills/tdd-red/SKILL.md`
 4. 하위 단계 계약인 `.codex/skills/tdd-green/SKILL.md`
 5. 하위 단계 계약인 `.codex/skills/tdd-blue/SKILL.md`
@@ -44,6 +44,7 @@ python3 .codex/skills/tdd-workflow/scripts/find_issue.py auth-1 --root .
 - 기존 테스트 파일을 수정하지 않는다.
 - 하위 스킬이 테스트 보정이나 기존 테스트 수정을 허용하더라도 `tdd-workflow` 실행 중에는 적용하지 않는다.
 - 사용자가 직접 승인해야 하는 위험 지점에서는 자동 진행하지 않는다.
+- `slice_type: foundation`도 같은 RED/GREEN/BLUE/security/AC 게이트를 따른다. feature PRD가 없는 대신 issue가 참조하는 approved root TRD, fixed architecture, 관련 디자인 기준을 사용한다.
 
 ## 브랜치 준비
 

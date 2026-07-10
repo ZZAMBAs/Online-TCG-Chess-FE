@@ -11,6 +11,7 @@ description: Online-TCG-Chess-FE 저충실도 스토리보드에서 특정 page 
 - 실제 사용자 UI와 구현 주석을 분리한다.
 - PC 화면, 모바일 화면, 각 화면의 행동 이후 상태를 같은 fragment 안에서 검토 가능하게 표현한다.
 - CSS 세부 구현보다 화면 의미, 사용자 행동, 상태 변화, 구현 참고사항을 우선한다.
+- 저스타일을 유지하되 실제 폼, 목록, 보드, 카드, 표, modal/sheet, CTA의 의미 구조를 텍스트 placeholder로 축소하지 않는다.
 - 최종 통합은 하지 않는다. 통합은 `$create-storyboard`의 빌드 스크립트가 담당한다.
 
 ## 절차
@@ -18,9 +19,10 @@ description: Online-TCG-Chess-FE 저충실도 스토리보드에서 특정 page 
 1. `$spec-read`로 BE 요구사항 최신성을 확인한다. 이미 같은 턴에서 성공했다면 확인된 commit 또는 sha256을 사용한다.
 2. 작업 전에 `references/fragment-authoring.md`를 읽는다.
 3. `docs/design/storyboard-manifest.json`에서 대상 page id를 찾는다.
-4. 대상 fragment만 읽는다. 전체 `docs/design/storyboard.html`을 먼저 읽지 않는다.
-5. 새 fragment라면 manifest와 기존 fragments에서 중복 여부를 다시 확인한다.
-6. 화면을 작성하거나 수정한 뒤 manifest의 해당 page에 상태, 승인 필요 여부, 변경 notes를 남긴다.
+4. 대상 fragment가 있으면 해당 파일만 읽는다. 전체 `docs/design/storyboard.html`을 먼저 읽지 않는다.
+5. page의 `visual_reference`가 존재하고 실제 파일을 읽을 수 있으면 정보 구조와 상태 보존 근거로 사용한다. 없으면 `structure` fidelity로 새 fragment를 작성한다.
+6. 새 fragment라면 존재하는 manifest와 fragments에서 중복 여부를 다시 확인한다.
+7. 화면을 작성하거나 수정한 뒤 manifest의 해당 page에 fidelity, 대표 상태, 컴포넌트 패턴, 승인 필요 여부, 변경 notes를 남긴다.
 
 ## Fragment 위치
 
