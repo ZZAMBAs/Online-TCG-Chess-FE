@@ -1,7 +1,7 @@
 interface:
   display_name: "PRD Read"
-  short_description: "BE PRD 최신성 확인과 FE projection"
-  default_prompt: "$prd-read를 사용해 BE PRD 원천 최신성을 확인하고 최신 PRD를 캐시한 뒤 FE docs 동일 경로에 projection해줘."
+  short_description: "BE PRD 최신성 확인과 로컬 캐시"
+  default_prompt: "$prd-read를 사용해 BE PRD 원천 최신성을 확인하고 최신 PRD를 .cache/prd-read/docs에 저장해줘."
 
 policy:
   allow_implicit_invocation: true

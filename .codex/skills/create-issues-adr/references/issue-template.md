@@ -26,7 +26,7 @@ slice_type: "vertical"
 github_issue: null
 github_url: null
 source_documents:
-  - "docs/features/{feature}/prd.md"
+  - ".cache/prd-read/docs/features/{feature}/prd.md"
   - "docs/features/{feature}/trd.md"
 source_scenarios: []
 related_adrs: []

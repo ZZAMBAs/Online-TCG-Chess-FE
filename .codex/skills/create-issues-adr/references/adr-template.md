@@ -23,7 +23,7 @@ feature: "{feature}"
 status: "proposed"
 related_issues: []
 source_documents:
-  - "docs/features/{feature}/prd.md"
+  - ".cache/prd-read/docs/features/{feature}/prd.md"
   - "docs/features/{feature}/trd.md"
 ---
 ```

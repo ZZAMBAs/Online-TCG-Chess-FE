@@ -32,7 +32,7 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 - `.codex/skills/architecture-interview/references/document-templates.md`
 - `.codex/skills/architecture-review/references/review-ledger-schema.md`
 - `docs/design/*`
-- `docs/prd.md`, `docs/trd.md`, `docs/features/*/prd.md`, `docs/features/*/trd.md`
+- `.cache/prd-read/docs/prd.md`, `docs/trd.md`, `.cache/prd-read/docs/features/*/prd.md`, `docs/features/*/trd.md`
 - `docs/contracts/*`
 - `docs/architecture/*`
 - `package.json`, lockfile, `src`, `app`, `components`, `pages`, `routes`

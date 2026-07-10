@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""BE PRD 문서를 원격 최신성 확인 후 로컬 캐시와 FE projection으로 동기화한다."""
+"""BE PRD 문서를 원격 최신성 확인 후 로컬 캐시로 동기화한다."""
 
 from __future__ import annotations
 
@@ -28,7 +28,6 @@ REPO_URL = f"https://github.com/{OWNER}/{REPO}.git"
 RAW_BASE_URL = f"https://raw.githubusercontent.com/{OWNER}/{REPO}/{BRANCH}"
 TREE_API_URL = f"https://api.github.com/repos/{OWNER}/{REPO}/git/trees/{BRANCH}?recursive=1"
 MANIFEST_FILENAME = "manifest.json"
-PROJECTION_MANIFEST_FILENAME = "projection.json"
 SOURCE_MISSING_MESSAGE = "BE master에서 PRD 산출물을 찾을 수 없습니다."
 Document = dict[str, Any]
 
@@ -259,7 +258,6 @@ def build_documents(cache_dir: Path, docs: dict[str, str]) -> list[Document]:
                 "feature": feature,
                 "sourcePath": source_path,
                 "cachePath": str(cache_path),
-                "projectedPath": source_path,
                 "sha256": sha256_text(text),
             }
         )
@@ -306,61 +304,6 @@ def write_docs(cache_dir: Path, docs: dict[str, str]) -> None:
         target.write_text(text, encoding="utf-8")
 
 
-def projection_manifest_path(cache_dir: Path) -> Path:
-    return cache_dir / PROJECTION_MANIFEST_FILENAME
-
-
-def projected_paths(manifest: dict) -> list[str]:
-    return sorted(
-        doc.get("projectedPath") or doc["sourcePath"]
-        for doc in manifest.get("documents", [])
-    )
-
-
-def remove_stale_projected_docs(repo_root: Path, cache_dir: Path, manifest: dict) -> None:
-    projection_manifest = read_json(projection_manifest_path(cache_dir))
-    previous_paths = set(projection_manifest.get("projectedPaths", []))
-    current_paths = set(projected_paths(manifest))
-    for relative_path in sorted(previous_paths - current_paths):
-        target = repo_root / relative_path
-        if target.is_file():
-            target.unlink()
-
-
-def write_projection_metadata(repo_root: Path, cache_dir: Path, manifest: dict) -> None:
-    write_json(
-        projection_manifest_path(cache_dir),
-        {
-            "repo": manifest.get("repo"),
-            "branch": manifest.get("branch"),
-            "commit": manifest.get("commit"),
-            "sha256": manifest.get("sha256"),
-            "syncedAt": manifest.get("syncedAt"),
-            "projectionRoot": str(repo_root),
-            "projectedPaths": projected_paths(manifest),
-        },
-    )
-
-
-def project_docs_from_text(repo_root: Path, cache_dir: Path, manifest: dict, docs: dict[str, str]) -> None:
-    remove_stale_projected_docs(repo_root, cache_dir, manifest)
-    for source_path, text in docs.items():
-        target = repo_root / source_path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text, encoding="utf-8")
-    write_projection_metadata(repo_root, cache_dir, manifest)
-
-
-def project_docs_from_cache(repo_root: Path, cache_dir: Path, manifest: dict) -> None:
-    remove_stale_projected_docs(repo_root, cache_dir, manifest)
-    for doc in manifest.get("documents", []):
-        source = Path(doc["cachePath"])
-        target = repo_root / (doc.get("projectedPath") or doc["sourcePath"])
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
-    write_projection_metadata(repo_root, cache_dir, manifest)
-
-
 def build_metadata(manifest: dict) -> dict:
     return {
         "repo": manifest["repo"],
@@ -395,9 +338,20 @@ def ensure_cache_complete(cache_dir: Path, manifest: dict) -> bool:
     return all(Path(doc["cachePath"]).exists() for doc in manifest.get("documents", []))
 
 
+def remove_legacy_projection_fields(manifest: dict) -> dict:
+    documents = list(manifest.get("documents", []))
+    documents.extend(manifest.get("featurePrds", []))
+    for key in ("hubPrd", "traceability"):
+        document = manifest.get(key)
+        if document:
+            documents.append(document)
+    for document in documents:
+        document.pop("projectedPath", None)
+    return manifest
+
+
 def status_payload(
     status: str,
-    repo_root: Path,
     cache_dir: Path,
     metadata_path: Path,
     manifest: dict,
@@ -408,9 +362,6 @@ def status_payload(
         "cacheDir": str(cache_dir),
         "metadata": str(metadata_path),
         "manifest": str(cache_dir / MANIFEST_FILENAME),
-        "projectionRoot": str(repo_root),
-        "projectionManifest": str(cache_dir / PROJECTION_MANIFEST_FILENAME),
-        "projectedDocuments": projected_paths(manifest),
         "commit": manifest.get("commit"),
         "sha256": manifest.get("sha256"),
         "verifiedBy": manifest.get("verifiedBy"),
@@ -432,7 +383,7 @@ def print_status(payload: dict, print_content: bool) -> None:
         print(path.read_text(encoding="utf-8"))
 
 
-def sync_prds(repo_root: Path, cache_dir: Path, feature: str | None, print_content: bool) -> None:
+def sync_prds(cache_dir: Path, feature: str | None, print_content: bool) -> None:
     cache_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = cache_dir / "metadata.json"
     manifest_path = cache_dir / MANIFEST_FILENAME
@@ -441,11 +392,12 @@ def sync_prds(repo_root: Path, cache_dir: Path, feature: str | None, print_conte
 
     head, head_method, head_error = checked_remote_head()
     if head and metadata.get("commit") == head and ensure_cache_complete(cache_dir, cached_manifest):
+        cached_manifest = remove_legacy_projection_fields(cached_manifest)
+        write_json(manifest_path, cached_manifest)
         selected = selected_documents(cached_manifest, feature)
         cached_manifest["verifiedBy"] = head_method or "unknown"
-        project_docs_from_cache(repo_root, cache_dir, cached_manifest)
         print_status(
-            status_payload("cache-hit", repo_root, cache_dir, metadata_path, cached_manifest, selected),
+            status_payload("cache-hit", cache_dir, metadata_path, cached_manifest, selected),
             print_content,
         )
         return
@@ -464,14 +416,13 @@ def sync_prds(repo_root: Path, cache_dir: Path, feature: str | None, print_conte
     write_docs(cache_dir, docs)
     write_json(manifest_path, manifest)
     write_json(metadata_path, build_metadata(manifest))
-    project_docs_from_text(repo_root, cache_dir, manifest, docs)
     status = "cache-hit-content-verified" if metadata.get("sha256") == manifest["sha256"] else "synced"
-    print_status(status_payload(status, repo_root, cache_dir, metadata_path, manifest, selected), print_content)
+    print_status(status_payload(status, cache_dir, metadata_path, manifest, selected), print_content)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="BE master의 PRD 산출물을 원격 최신성 확인 후 캐시하고 FE repo docs에 projection한다."
+        description="BE master의 PRD 산출물을 원격 최신성 확인 후 .cache/prd-read에 저장한다."
     )
     parser.add_argument(
         "--cache-dir",
@@ -481,7 +432,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--feature",
-        help="특정 docs/features/{feature}/prd.md만 선택한다. feature 이름은 정확히 일치해야 한다.",
+        help="특정 .cache/prd-read/docs/features/{feature}/prd.md만 선택한다. feature 이름은 정확히 일치해야 한다.",
     )
     parser.add_argument(
         "--print",
@@ -499,7 +450,7 @@ def main() -> int:
     cache_dir = args.cache_dir or (repo_root / ".cache" / "prd-read")
 
     try:
-        sync_prds(repo_root, cache_dir, args.feature, args.print)
+        sync_prds(cache_dir, args.feature, args.print)
         return 0
     except FeatureMissingError as exc:
         print("ERROR: 요청한 feature PRD 원천을 찾을 수 없습니다.", file=sys.stderr)

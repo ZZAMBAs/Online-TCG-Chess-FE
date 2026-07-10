@@ -12,8 +12,8 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 ## 기본 원칙
 
 - 모든 질문, 분석, 문서, GitHub Issue 본문은 한국어로 작성한다.
-- `docs/spec/*`, `docs/contracts/*`, `docs/prd.md`, `docs/trd.md`, `docs/features/{feature}/prd.md`, `docs/features/{feature}/trd.md`, `docs/design/*`는 입력 문서로만 취급하고 수정하지 않는다.
-- FE의 `docs/prd.md`, `docs/features/{feature}/prd.md`, `docs/traceability.md`는 `$prd-read`가 BE PRD를 동일 경로에 복사한 projection이다. PRD 내용이 없거나 stale 의심이 있으면 직접 작성하지 말고 `$prd-read`를 먼저 실행한다.
+- `docs/spec/*`, `docs/contracts/*`, `.cache/prd-read/docs/*`의 PRD, `docs/trd.md`, `docs/features/{feature}/trd.md`, `docs/design/*`는 입력 문서로만 취급하고 수정하지 않는다.
+- `.cache/prd-read/docs/prd.md`, `.cache/prd-read/docs/features/{feature}/prd.md`, `.cache/prd-read/docs/traceability.md`는 `$prd-read`가 관리하는 PRD 캐시다. PRD 내용이 없거나 stale 의심이 있으면 직접 작성하지 말고 `$prd-read`를 먼저 실행한다.
 - PRD/TRD가 없거나 확정되지 않았으면 이슈 생성을 멈추고 먼저 `$prd-read`와 `create-trd` 산출물 확정을 요청한다.
 - 기존 `docs/features/{feature}/issues/*`, `docs/features/{feature}/adr/*`, `docs/issue-map.md`, `docs/adr-index.md`가 있으면 먼저 읽고 중복 생성 대신 보완한다.
 - 로컬 문서를 원천 추적 기준으로 삼는다. GitHub Issue 생성은 사용자가 명시적으로 요청하고 승인한 경우에만 수행한다.
@@ -25,9 +25,9 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 
 ## 대상 범위
 
-사용자가 `{feature}` 인자를 주면 해당 feature만 처리한다. 예를 들어 `$create-issues-adr matchmaking`처럼 요청하면 `$prd-read` projection인 `docs/features/matchmaking/prd.md`와 FE TRD인 `docs/features/matchmaking/trd.md`를 기준으로 이슈와 ADR을 생성한다.
+사용자가 `{feature}` 인자를 주면 해당 feature만 처리한다. 예를 들어 `$create-issues-adr matchmaking`처럼 요청하면 `$prd-read` 캐시인 `.cache/prd-read/docs/features/matchmaking/prd.md`와 FE TRD인 `docs/features/matchmaking/trd.md`를 기준으로 이슈와 ADR을 생성한다.
 
-인자가 없으면 전체 feature를 기준으로 후보를 탐색한다. 사용자의 문맥이 특정 feature를 가리키면 그 feature만 처리하고, 범위가 불명확하거나 너무 넓으면 `docs/features/*/prd.md`와 `trd.md`가 모두 있는 feature 목록을 제시해 처리 범위를 확정한다.
+인자가 없으면 전체 feature를 기준으로 후보를 탐색한다. 사용자의 문맥이 특정 feature를 가리키면 그 feature만 처리하고, 범위가 불명확하거나 너무 넓으면 `.cache/prd-read/docs/features/*/prd.md`와 `docs/features/*/trd.md`가 모두 있는 feature 목록을 제시해 처리 범위를 확정한다.
 
 지정된 `{feature}`에 PRD/TRD가 없으면 유사한 feature 폴더를 추측해 진행하지 말고, 누락된 경로를 보고하고 중단한다.
 
@@ -35,8 +35,10 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 
 우선 존재하는 문서만 읽는다.
 
-- 공통 산출물: `docs/prd.md`, `docs/trd.md`, `docs/milestones.md`, `docs/traceability.md`, `docs/contracts/*`, `docs/design/storyboard.html`
-- 기능 산출물: `docs/features/{feature}/prd.md`, `docs/features/{feature}/trd.md`
+- 공통 입력: `.cache/prd-read/docs/prd.md`, `.cache/prd-read/docs/traceability.md`
+- 공통 산출물: `docs/trd.md`, `docs/milestones.md`, `docs/contracts/*`, `docs/design/storyboard.html`
+- 기능 입력: `.cache/prd-read/docs/features/{feature}/prd.md`
+- 기능 산출물: `docs/features/{feature}/trd.md`
 - 아키텍처 산출물: `docs/architecture/*`
 - BE 요구사항: 필요 시 프로젝트 로컬 `$spec-read`
 - 기존 후속 산출물: `docs/features/{feature}/issues/*`, `docs/features/{feature}/adr/*`, `docs/issue-map.md`, `docs/adr-index.md`
@@ -44,7 +46,7 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 feature PRD/
 ## 진행 절차
 
 1. `{feature}` 인자가 있는지 확인하고 처리 범위를 확정한다.
-2. `docs/prd.md`, `docs/features/{feature}/prd.md`가 없으면 `$prd-read` projection 누락으로 보고 이슈 생성을 중단한다. `docs/traceability.md`는 있으면 읽고, 없으면 선택 PRD projection 누락으로만 보고한다.
+2. `.cache/prd-read/docs/prd.md`, `.cache/prd-read/docs/features/{feature}/prd.md`가 없으면 `$prd-read` 캐시 누락으로 보고 이슈 생성을 중단한다. `.cache/prd-read/docs/traceability.md`는 있으면 읽고, 없으면 선택 PRD 캐시 누락으로만 보고한다.
 3. 입력 문서와 기존 후속 산출물을 읽는다.
 4. 가능하면 `scripts/scan_issue_ids.py --root .`를 실행해 기존 로컬 이슈 ID, ADR ID, GitHub Issue 연결 중복을 확인한다.
 5. feature별 사용자 시나리오, 화면/라우팅 책임, FE 상태 소유권, API/STOMP client 경계, REST/STOMP 계약 영향, 테스트 가능성을 기준으로 이슈 후보를 도출한다.
