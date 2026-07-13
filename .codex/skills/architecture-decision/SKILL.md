@@ -1,6 +1,6 @@
 ---
 name: architecture-decision
-description: Online-TCG-Chess-FE에서 승인된 $design-decision 뒤 $architecture-interview와 $architecture-review를 하나의 승인형 워크플로로 묶어 FE 구현 아키텍처, 인프라, CI/CD, 정적 분석, Git hook, 테스트/계약 드리프트 게이트를 확정해야 할 때 사용한다. 승인된 Git 기반 design baseline을 입력으로 검증하고 fixed architecture 문서를 남길 때 사용한다.
+description: Online-TCG-Chess-FE에서 승인된 $design-decision 뒤 $architecture-interview와 $architecture-review를 하나의 승인형 워크플로로 묶어 FE 구현 아키텍처, 인프라, CI/CD, 정적 분석, Git hook, 테스트/계약 드리프트 게이트를 확정해야 할 때 사용한다. 채택한 결정과 제외한 대안을 아키텍처 ADR로 보존하고 fixed architecture와 ADR index를 함께 남길 때 사용한다.
 ---
 
 # Architecture Decision
@@ -13,14 +13,17 @@ description: Online-TCG-Chess-FE에서 승인된 $design-decision 뒤 $architect
 
 - 모든 질문, 요약, 문서는 한국어로 작성한다.
 - 먼저 `.codex/skills/architecture-interview/SKILL.md`와 `.codex/skills/architecture-review/SKILL.md`를 읽고 따른다.
+- 아키텍처 ADR을 작성할 때는 `references/adr-template.md`를 읽고 따른다.
 - BE 요구사항 판단이 필요하면 `$spec-read`로 최신성을 확인한다. 실패하면 요구사항 기반 결정을 중단한다.
 - `$design-decision`이 생성한 `docs/design/design-baseline.md`가 없거나 `approved`가 아니면 `$architecture-interview` 전에 `$design-decision`을 먼저 실행하도록 요청하고 아키텍처 결정을 중단한다.
 - 하위 스킬이 요구하는 사용자 승인 게이트를 건너뛰지 않는다.
 - `architecture-review` 결과 수정 사항이 있으면 `architecture-interview` 방식으로 질문, 추천안, 승인, 문서 보완을 다시 수행한다.
 - 인터뷰 보완과 리뷰 반복은 최대 3회까지만 허용한다. 3회 후에도 차단 이슈가 남으면 확정하지 않고 중단한다.
-- ADR, issue 분리, 심층 보안 리뷰, 운영 runbook 작성은 직접 수행하지 않고 후속 스킬 연계 항목으로 남긴다.
+- 서로 실행 가능한 대안 중 하나를 채택하는 중요한 결정은 아키텍처 ADR로 직접 남긴다. 채택하지 않은 대안과 현재 조건에서의 제외 이유도 보존한다.
+- 아키텍처 ADR은 FE 전역 구조·인프라·CI/CD·하네스 결정을 소유한다. `$create-issues-adr`가 소유하는 `docs/features/{feature}/adr/`의 feature/foundation 구현 ADR과 중복 작성하지 않는다.
+- issue 분리, feature 구현 ADR, 심층 보안 리뷰, 운영 runbook 작성은 후속 스킬 연계 항목으로 남긴다.
 - 최종 fixed architecture가 통과한 뒤, 사용자 승인이 있으면 결정된 빌드/테스트/정적 분석/하네스 기준을 반영하기 위한 `package.json`, lockfile, Vite/Vitest/TypeScript/ESLint/Prettier/Playwright 설정, Git hook `.mjs`, CI 설정, 기본 `src`/test scaffold를 생성하거나 수정할 수 있다.
-- 이 최종 구현 반영은 공통 FE 기반과 하네스 설정에만 한정한다. feature별 기능 구현, issue/ADR/TDD 산출물 작성은 수행하지 않는다.
+- 이 최종 구현 반영은 공통 FE 기반과 하네스 설정에만 한정한다. feature별 기능 구현, issue/feature ADR/TDD 산출물 작성은 수행하지 않는다.
 - 공통 scaffold에는 style entry와 token/primitive가 놓일 디렉터리·import surface를 만들 수 있지만, 승인된 디자인 기준의 실제 token 값, 공통 UI primitive의 시각 구현, feature/page CSS는 작성하지 않는다. 해당 production 구현은 후속 foundation/feature 이슈가 소유한다.
 - `docs/design/design-baseline.md` 같은 승인된 디자인 기준 산출물이 있으면 스타일링 방식과 component boundary 결정의 입력으로 사용한다. 없으면 source-of-truth와 소유 경계만 확정하고 상세 시각값을 임의 결정하지 않는다.
 - 원천 문서에 없는 값을 임의 확정하지 않는다.
@@ -34,6 +37,7 @@ description: Online-TCG-Chess-FE에서 승인된 $design-decision 뒤 $architect
 - `.codex/skills/architecture-review/SKILL.md`
 - `.codex/skills/architecture-interview/references/document-templates.md`
 - `.codex/skills/architecture-review/references/review-ledger-schema.md`
+- `.codex/skills/architecture-decision/references/adr-template.md`
 - `docs/design/*`
 - `docs/design/design-baseline.md`, 존재하는 경우의 `docs/design/design-specimen.*`
 - `.cache/prd-read/docs/prd.md`, `docs/trd.md`, `.cache/prd-read/docs/features/*/prd.md`, `docs/features/*/trd.md`
@@ -48,16 +52,17 @@ description: Online-TCG-Chess-FE에서 승인된 $design-decision 뒤 $architect
 2. 기존 `docs/architecture/current-fixed.md`가 있으면 현재 적용 중인 fixed 디렉터리를 확인한다.
 3. `design-baseline.md`의 source traceability, status, token/primitive handoff, 미확정 사항을 확인한다.
 4. `$architecture-interview`를 실행해 필요한 아키텍처 결정을 질문하고 승인받아 문서화한다.
-5. 인터뷰 과정과 답변을 `docs/architecture/interview-{yyyymmdd}/`에 기록한다.
-6. `$architecture-review`를 실행해 인터뷰 산출물과 기존 문서, 코드, 설정 drift를 검토한다.
-7. 리뷰에서 보완 사항이 없고 사용자 승인이 있으면 최종 fixed 문서를 작성한다.
-8. 리뷰에서 보완 사항이 있으면 루프 카운트를 1 올리고, 보완 항목을 `$architecture-interview` 방식으로 다시 확정한다.
-9. 보완한 문서를 다시 `$architecture-review`로 검토한다.
-10. 루프 카운트가 3을 넘으면 더 반복하지 않고 `architecture-decision-blocked`로 보고한다.
-11. 확정되면 `docs/architecture/fixed-{yyyymmdd}/`에 최종 문서를 작성하고 `docs/architecture/current-fixed.md`를 갱신한다.
-12. 사용자가 승인한 경우 fixed architecture의 build/harness 결정을 실제 FE repo 설정에 반영한다. 예: `package.json`, lockfile, `vite.config.*`, `vitest.config.*`, `tsconfig*.json`, ESLint/Prettier/Playwright 설정, `.github`, hook/helper `.mjs`, 기본 `src`/test scaffold.
-13. 실제 디자인 token, 공통 UI primitive, feature CSS 구현 후보는 fixed 문서의 후속 foundation/feature 이슈 handoff로 남긴다.
-14. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
+5. 인터뷰 과정, 실제 검토한 대안, 채택·제외 이유, 재검토 조건을 `docs/architecture/interview-{yyyymmdd}/`에 기록한다. 실질적 대안 비교가 없던 단순 구현 세부 판단은 ADR 후보로 만들지 않는다.
+6. 의미 있는 대안 비교가 있었던 승인 결정은 `docs/architecture/adr/adr-{nnn}-{slug}.md`에 `proposed` ADR로 기록하고 `docs/architecture/adr-index.md`에 연결한다.
+7. `$architecture-review`를 실행해 인터뷰 산출물, ADR, 기존 문서, 코드, 설정 drift를 검토한다.
+8. 리뷰에서 보완 사항이 없고 사용자 승인이 있으면 최종 fixed 문서를 작성한다.
+9. 리뷰에서 보완 사항이 있으면 루프 카운트를 1 올리고, 보완 항목을 `$architecture-interview` 방식으로 다시 확정한다.
+10. 보완한 문서와 ADR을 다시 `$architecture-review`로 검토한다.
+11. 루프 카운트가 3을 넘으면 더 반복하지 않고 `architecture-decision-blocked`로 보고한다.
+12. 확정되면 `docs/architecture/fixed-{yyyymmdd}/`에 최종 문서를 작성하고 ADR을 `accepted`로 전환한 뒤 `adr-index.md`와 `current-fixed.md`를 갱신한다.
+13. 사용자가 승인한 경우 fixed architecture의 build/harness 결정을 실제 FE repo 설정에 반영한다. 예: `package.json`, lockfile, `vite.config.*`, `vitest.config.*`, `tsconfig*.json`, ESLint/Prettier/Playwright 설정, `.github`, hook/helper `.mjs`, 기본 `src`/test scaffold.
+14. 실제 디자인 token, 공통 UI primitive, feature CSS 구현 후보는 fixed 문서의 후속 foundation/feature 이슈 handoff로 남긴다.
+15. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
 
 ## 반복 루프 규칙
 
@@ -88,6 +93,8 @@ docs/architecture/interview-{yyyymmdd}/
 - 사용한 원천 문서
 - 질문한 아키텍처 영역
 - 사용자 답변과 채택된 추천안
+- 검토한 대안과 채택·제외 이유
+- 생성 또는 갱신한 아키텍처 ADR
 - 리뷰 루프 횟수
 - 각 루프의 상태
 - 보완한 문서
@@ -99,6 +106,7 @@ docs/architecture/interview-{yyyymmdd}/
 - 리뷰 지적 사항
 - 다시 인터뷰한 질문
 - 추천 답변과 사용자 승인 내용
+- 변경된 대안 비교, 제외 이유, ADR 상태
 - 반영한 문서
 - 재리뷰 결과
 
@@ -128,6 +136,22 @@ docs/architecture/fixed-{yyyymmdd}/
 
 Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.md` 문서다.
 
+## 아키텍처 ADR
+
+```text
+docs/architecture/
+  adr/
+    adr-{nnn}-{slug}.md
+  adr-index.md
+```
+
+- `{nnn}`은 `docs/architecture/adr/` 전체에서 증가하는 세 자리 번호이고 slug는 소문자 ASCII kebab-case다.
+- 중요한 선택지 비교마다 ADR 하나를 만든다. 관계없는 런타임·상태·인프라·하네스 결정을 한 ADR에 묶지 않는다.
+- 상태는 `proposed`, `accepted`, `superseded`, `deferred` 중 하나로 관리한다. 최종 승인 전에는 `accepted`로 표시하지 않는다.
+- 재결정으로 기존 결정을 바꾸면 새 ADR의 `supersedes`와 이전 ADR의 `status: superseded` 및 대체 ADR을 함께 갱신한다. 당시 대안과 제외 이유는 삭제하거나 새 결론으로 덮어쓰지 않는다.
+- `adr-index.md`에는 ADR 번호, 제목, 상태, 관련 fixed 문서, 대체 관계를 한 줄씩 연결한다. 저장소 루트의 다른 ADR index 또는 feature ADR index와 혼용하지 않는다.
+- fixed 문서와 `architecture-traceability.md`에서 관련 `ARCH-ADR-{nnn}`을 참조한다. fixed 문서와 ADR의 선택이 다르면 확정 상태로 완료하지 않는다.
+
 ## 현재 적용 fixed 포인터
 
 확정이 끝나면 `docs/architecture/current-fixed.md`를 생성하거나 갱신한다.
@@ -142,6 +166,7 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 - harness: docs/architecture/fixed-{yyyymmdd}/harness-fixed.md
 - interview_trace: docs/architecture/interview-{yyyymmdd}/summary.md
 - review_ledger: docs/architecture/architecture-review-ledger.md
+- architecture_adr_index: docs/architecture/adr-index.md # 아키텍처 ADR이 있을 때만
 - status: fixed
 ```
 
@@ -150,12 +175,14 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 ## 완료 조건
 
 - `architecture-interview`의 승인된 결정이 문서화되어 있다.
+- 의미 있는 대안 비교가 있었으면 아키텍처 ADR과 `docs/architecture/adr-index.md`가 존재하며 채택·제외 이유가 기록되어 있다.
 - `docs/design/design-baseline.md`가 `approved` 상태이며 fixed architecture가 이를 source로 기록한다.
 - `architecture-review`가 보완 사항 없음 또는 승인된 보완 반영 완료로 끝났다.
 - 리뷰 보완 루프가 3회를 넘지 않았다.
 - `docs/architecture/interview-{yyyymmdd}/summary.md`에 과정이 남아 있다.
 - `docs/architecture/fixed-{yyyymmdd}/impl-fixed.md`, `infra-fixed.md`, `harness-fixed.md`가 존재한다.
 - `docs/architecture/current-fixed.md`가 최신 fixed 디렉터리를 가리킨다.
+- accepted ADR의 결정, fixed 문서, traceability, ADR index가 서로 일치한다.
 - 남은 미확정, 상위 산출물 재검토, 후속 스킬 연계 항목이 보고되어 있다.
 - build/harness 설정을 반영한 경우, 수정한 설정 파일과 실행한 검증 명령이 보고되어 있다.
 - 실제 token/primitive/page CSS를 architecture scaffold에 섞지 않고 후속 foundation/feature 구현 경로가 기록되어 있다.
@@ -169,6 +196,7 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 - 생성 또는 갱신한 `interview-{yyyymmdd}` 문서
 - 생성 또는 갱신한 `fixed-{yyyymmdd}` 문서
 - 갱신한 `current-fixed.md`
+- 생성 또는 갱신한 아키텍처 ADR과 `adr-index.md`
 - Mermaid HTML 생성 여부
 - build/harness 설정 수정 여부와 수정 파일
 - 실행한 검증 명령과 결과

@@ -1,4 +1,4 @@
 interface:
   display_name: "Architecture Decision"
-  short_description: "승인 디자인 기준 기반 FE 아키텍처 확정"
-  default_prompt: "Use $architecture-decision after $design-decision to fix FE architecture, review it, and apply approved build/harness settings."
+  short_description: "FE 아키텍처와 대안 ADR을 승인형으로 확정"
+  default_prompt: "Use $architecture-decision after $design-decision to fix FE architecture, preserve accepted and rejected alternatives in architecture ADRs, review them, and apply approved build/harness settings."

@@ -150,8 +150,8 @@
 ```markdown
 # Architecture Traceability
 
-| 결정 | 출처 산출물 | 출처 섹션 | 반영 문서 | 상태 |
-| --- | --- | --- | --- | --- |
+| 결정 | 아키텍처 ADR | 출처 산출물 | 출처 섹션 | 반영 문서 | 상태 |
+| --- | --- | --- | --- | --- | --- |
 ```
 
 ## architecture-review-ledger.md
