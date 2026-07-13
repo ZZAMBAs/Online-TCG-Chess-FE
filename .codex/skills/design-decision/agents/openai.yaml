@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Decision"
+  short_description: "Git 기반 FE 디자인 기준을 승인형으로 확정"
+  default_prompt: "Use $design-decision to create and approve a Git-native design baseline from the current storyboard and requirements."
