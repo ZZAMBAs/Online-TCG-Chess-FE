@@ -1,0 +1,4 @@
+interface:
+  display_name: "E2E Test"
+  short_description: "대표 UI 흐름과 시각 상태를 Playwright로 검증"
+  default_prompt: "Use $e2e-test auth-1 to verify the required desktop/mobile user flow and representative visual states with the existing Playwright setup."
