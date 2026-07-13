@@ -81,6 +81,7 @@ description: Online-TCG-Chess-FE에서 BE 요구사항과 확정된 PRD/TRD, arc
 - 각 이슈에는 TDD 진행 순서를 포함한다. 먼저 실패해야 할 테스트를 쓰고, 최소 구현, 리팩터링, 하네스/정적 분석 검증 순으로 적는다.
 - REST/STOMP가 사용자에게 보이는 결과이면 unit/component 테스트뿐 아니라 API client, STOMP client, 계약 테스트 관점을 포함한다. 하네스가 아직 없으면 기능 이슈에 묻지 말고 하네스 선행 작업 또는 `미확정 사항`으로 분리한다.
 - 수용 기준과 테스트는 PRD/TRD의 요구사항과 연결될 만큼 구체적으로 작성한다.
+- 실제 route/viewport/대표 오류·권한·실시간 상태를 브라우저에서 확인해야 하는 이슈는 `e2e_required: true`와 `visual_states`를 기록한다. 순수 API/state/adapter 이슈에는 E2E를 강제하지 않는다.
 - UI foundation AC는 구체 시각값을 임의 발명하지 않고 승인된 디자인 기준과 fixed architecture를 참조한다. RED는 semantic variant, 접근성, public props/state를 검증하고 실제 token/primitive CSS는 GREEN이 구현하도록 분리한다.
 
 ## ADR 작성 규칙

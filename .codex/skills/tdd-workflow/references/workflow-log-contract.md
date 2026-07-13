@@ -4,7 +4,7 @@
 
 ## 상태
 
-- `workflow-pass`: RED, GREEN, BLUE, security-review, AC verifier가 모두 완료되었고 전체 AC가 충족되었다.
+- `workflow-pass`: RED, GREEN, BLUE, 필요한 경우 E2E, security-review, AC verifier가 모두 완료되었고 전체 AC가 충족되었다.
 - `workflow-blocked`: 환경 문제, 선행 이슈 미완료, 필수 문서 부재, 대상 파일 불명확 등으로 자동 진행할 수 없다.
 - `workflow-failed`: 허용 범위 안에서 RED/GREEN/BLUE/security 단계 또는 AC 갭 해소에 실패했다.
 - `workflow-ac-retry-exhausted`: AC verifier 총 3회 실행 후에도 전체 AC를 충족하지 못했다.
@@ -31,6 +31,7 @@
 - RED 상태와 산출물
 - GREEN 상태와 산출물
 - BLUE 상태와 산출물
+- E2E 필요 여부와 e2e-test 상태·산출물
 - security-review 상태와 산출물
 - security-review가 참고한 e2e-test 또는 Playwright 결과
 - AC verifier 실행 횟수

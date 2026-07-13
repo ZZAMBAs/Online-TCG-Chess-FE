@@ -49,6 +49,7 @@ PRD/TRD, GREEN 결과, BLUE 결과, 변경 파일, 보안 요구사항을 확인
 - 현재 이슈에 `TDD GREEN 결과`가 없으면 기본적으로 검토하지 말고 `security-blocked`로 기록한다.
 - GREEN 결과가 `green-pass`가 아니면 검토하지 말고 `security-blocked`로 기록한다.
 - `refactor-log.md`가 없거나 BLUE 상태가 `blue-pass` 또는 `blue-noop`가 아니면 기본적으로 검토하지 말고 `security-blocked`로 기록한다.
+- `e2e_required: true`인데 `e2e-test.md`가 없거나 결과가 `e2e-pass`가 아니면 검토하지 말고 `security-blocked`로 기록한다.
 - 사용자가 e2e-test 이후 보안 검토를 요청했고 e2e-test 산출물이 명확하면, BLUE 누락 여부를 별도 갭으로 기록하고 보안 검토를 제한적으로 진행할 수 있다.
 - 대상 파일은 GREEN 결과의 production 파일, BLUE 변경 파일, e2e-test 관련 파일, 현재 `git diff` 중 이슈 관련 production/resource 파일로 제한한다.
 - 대상 파일을 특정할 수 없으면 `security-blocked`로 기록한다.

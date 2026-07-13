@@ -56,3 +56,4 @@ python3 .codex/skills/create-storyboard/scripts/build_storyboard.py
 - BE 요구사항 원문을 FE 저장소에 권위 문서로 복사하지 않는다.
 - 사용자 승인 없이 승인되지 않은 페이지를 최종 확정 상태로 표시하지 않는다.
 - 대화 컨텍스트만 믿고 이어가지 말고 manifest를 상태 저장소로 사용한다.
+- 관련 페이지가 승인되면 다음 단계로 `$design-decision`을 안내한다. 스토리보드에서 실제 design token이나 production CSS를 확정하지 않는다.

@@ -1,4 +1,4 @@
 interface:
   display_name: "TDD Workflow"
-  short_description: "기능·공통 기반 이슈의 TDD 전체 흐름 실행"
-  default_prompt: "Use $tdd-workflow foundation-1 to run RED, GREEN, BLUE, security review, and AC verification for a feature or foundation issue."
+  short_description: "조건부 E2E를 포함한 기능·공통 기반 TDD 흐름"
+  default_prompt: "Use $tdd-workflow foundation-1 to run RED, GREEN, BLUE, required E2E, security review, and AC verification."

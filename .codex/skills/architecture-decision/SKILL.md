@@ -1,6 +1,6 @@
 ---
 name: architecture-decision
-description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-review를 하나의 승인형 워크플로로 묶어 FE 구현 아키텍처, FE 서버/배포 인프라, CI/CD, 정적 분석, Git hook mjs 하네스, 테스트/계약 드리프트 게이트를 확정해야 할 때 사용한다. 인터뷰 산출물을 리뷰하고, 리뷰 보완 사항이 있으면 최대 3회까지 인터뷰 방식으로 재수정 후 재리뷰하며, docs/architecture/interview-{yyyymmdd}/와 docs/architecture/fixed-{yyyymmdd}/ 및 current-fixed.md에 추적 가능한 결정 문서를 남겨야 할 때 사용한다.
+description: Online-TCG-Chess-FE에서 승인된 $design-decision 뒤 $architecture-interview와 $architecture-review를 하나의 승인형 워크플로로 묶어 FE 구현 아키텍처, 인프라, CI/CD, 정적 분석, Git hook, 테스트/계약 드리프트 게이트를 확정해야 할 때 사용한다. 승인된 Git 기반 design baseline을 입력으로 검증하고 fixed architecture 문서를 남길 때 사용한다.
 ---
 
 # Architecture Decision
@@ -14,6 +14,7 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 - 모든 질문, 요약, 문서는 한국어로 작성한다.
 - 먼저 `.codex/skills/architecture-interview/SKILL.md`와 `.codex/skills/architecture-review/SKILL.md`를 읽고 따른다.
 - BE 요구사항 판단이 필요하면 `$spec-read`로 최신성을 확인한다. 실패하면 요구사항 기반 결정을 중단한다.
+- `$design-decision`이 생성한 `docs/design/design-baseline.md`가 없거나 `approved`가 아니면 `$architecture-interview` 전에 `$design-decision`을 먼저 실행하도록 요청하고 아키텍처 결정을 중단한다.
 - 하위 스킬이 요구하는 사용자 승인 게이트를 건너뛰지 않는다.
 - `architecture-review` 결과 수정 사항이 있으면 `architecture-interview` 방식으로 질문, 추천안, 승인, 문서 보완을 다시 수행한다.
 - 인터뷰 보완과 리뷰 반복은 최대 3회까지만 허용한다. 3회 후에도 차단 이슈가 남으면 확정하지 않고 중단한다.
@@ -34,7 +35,7 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 - `.codex/skills/architecture-interview/references/document-templates.md`
 - `.codex/skills/architecture-review/references/review-ledger-schema.md`
 - `docs/design/*`
-- 존재하는 경우의 `docs/design/design-baseline.md`, `docs/design/design-specimen.*`
+- `docs/design/design-baseline.md`, 존재하는 경우의 `docs/design/design-specimen.*`
 - `.cache/prd-read/docs/prd.md`, `docs/trd.md`, `.cache/prd-read/docs/features/*/prd.md`, `docs/features/*/trd.md`
 - `docs/contracts/*`
 - `docs/architecture/*`
@@ -45,17 +46,18 @@ description: Online-TCG-Chess-FE에서 $architecture-interview와 $architecture-
 
 1. 오늘 날짜를 로컬 기준 `yyyymmdd`로 정한다.
 2. 기존 `docs/architecture/current-fixed.md`가 있으면 현재 적용 중인 fixed 디렉터리를 확인한다.
-3. `$architecture-interview`를 실행해 필요한 아키텍처 결정을 질문하고 승인받아 문서화한다.
-4. 인터뷰 과정과 답변을 `docs/architecture/interview-{yyyymmdd}/`에 기록한다.
-5. `$architecture-review`를 실행해 인터뷰 산출물과 기존 문서, 코드, 설정 drift를 검토한다.
-6. 리뷰에서 보완 사항이 없고 사용자 승인이 있으면 최종 fixed 문서를 작성한다.
-7. 리뷰에서 보완 사항이 있으면 루프 카운트를 1 올리고, 보완 항목을 `$architecture-interview` 방식으로 다시 확정한다.
-8. 보완한 문서를 다시 `$architecture-review`로 검토한다.
-9. 루프 카운트가 3을 넘으면 더 반복하지 않고 `architecture-decision-blocked`로 보고한다.
-10. 확정되면 `docs/architecture/fixed-{yyyymmdd}/`에 최종 문서를 작성하고 `docs/architecture/current-fixed.md`를 갱신한다.
-11. 사용자가 승인한 경우 fixed architecture의 build/harness 결정을 실제 FE repo 설정에 반영한다. 예: `package.json`, lockfile, `vite.config.*`, `vitest.config.*`, `tsconfig*.json`, ESLint/Prettier/Playwright 설정, `.github`, hook/helper `.mjs`, 기본 `src`/test scaffold.
-12. 실제 디자인 token, 공통 UI primitive, feature CSS 구현 후보는 fixed 문서의 후속 foundation/feature 이슈 handoff로 남긴다.
-13. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
+3. `design-baseline.md`의 source traceability, status, token/primitive handoff, 미확정 사항을 확인한다.
+4. `$architecture-interview`를 실행해 필요한 아키텍처 결정을 질문하고 승인받아 문서화한다.
+5. 인터뷰 과정과 답변을 `docs/architecture/interview-{yyyymmdd}/`에 기록한다.
+6. `$architecture-review`를 실행해 인터뷰 산출물과 기존 문서, 코드, 설정 drift를 검토한다.
+7. 리뷰에서 보완 사항이 없고 사용자 승인이 있으면 최종 fixed 문서를 작성한다.
+8. 리뷰에서 보완 사항이 있으면 루프 카운트를 1 올리고, 보완 항목을 `$architecture-interview` 방식으로 다시 확정한다.
+9. 보완한 문서를 다시 `$architecture-review`로 검토한다.
+10. 루프 카운트가 3을 넘으면 더 반복하지 않고 `architecture-decision-blocked`로 보고한다.
+11. 확정되면 `docs/architecture/fixed-{yyyymmdd}/`에 최종 문서를 작성하고 `docs/architecture/current-fixed.md`를 갱신한다.
+12. 사용자가 승인한 경우 fixed architecture의 build/harness 결정을 실제 FE repo 설정에 반영한다. 예: `package.json`, lockfile, `vite.config.*`, `vitest.config.*`, `tsconfig*.json`, ESLint/Prettier/Playwright 설정, `.github`, hook/helper `.mjs`, 기본 `src`/test scaffold.
+13. 실제 디자인 token, 공통 UI primitive, feature CSS 구현 후보는 fixed 문서의 후속 foundation/feature 이슈 handoff로 남긴다.
+14. build/harness 설정 반영 후 가능한 범위에서 typecheck/lint/test/build 명령을 실행하고, 실패하면 fixed 문서는 유지하되 구현 반영 상태와 후속 조치를 보고한다.
 
 ## 반복 루프 규칙
 
@@ -148,6 +150,7 @@ Mermaid HTML은 이해 보조 자료일 뿐이며, 결정의 권위 원천은 `.
 ## 완료 조건
 
 - `architecture-interview`의 승인된 결정이 문서화되어 있다.
+- `docs/design/design-baseline.md`가 `approved` 상태이며 fixed architecture가 이를 source로 기록한다.
 - `architecture-review`가 보완 사항 없음 또는 승인된 보완 반영 완료로 끝났다.
 - 리뷰 보완 루프가 3회를 넘지 않았다.
 - `docs/architecture/interview-{yyyymmdd}/summary.md`에 과정이 남아 있다.

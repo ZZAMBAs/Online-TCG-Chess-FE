@@ -61,6 +61,8 @@ python3 .codex/skills/tdd-blue/scripts/find_issue.py auth-1 --root .
 
 `slice_type: foundation`은 feature PRD가 없어도 issue가 참조하는 approved root TRD, fixed architecture, 관련 디자인 기준으로 AC 근거를 확인한다. UI foundation이면 token/primitive public surface와 후속 feature 소비 가능성을 구현 및 테스트에서 확인한다.
 
+`e2e_required: true`인 이슈는 `e2e-test.md`가 `e2e-pass`인지와 `visual_states`가 검증 범위에 포함됐는지 확인한다. 결과가 없거나 다른 상태면 전체 AC를 통과로 판정하지 않는다.
+
 ## 검증 방법
 
 1. AC를 원문 기준으로 분리한다.
@@ -81,7 +83,9 @@ python3 .codex/skills/tdd-blue/scripts/find_issue.py auth-1 --root .
    - `security-review.md`가 있으면 `security-pass` 또는 `security-low-only`인지 확인한다.
    - `Medium`/`High` finding이 남아 있으면 관련 AC는 완료로 보지 않는다.
    - `security-review.md`가 없으면 보안 검토 미수행을 별도 갭으로 보고한다.
-7. 필요한 경우 좁은 범위의 테스트를 실행한다.
+7. `e2e_required: true`이면 E2E 결과와 visual state 근거를 확인한다.
+   - `e2e-pass`가 아니거나 required state가 누락되면 관련 AC를 `부분 충족`, `미충족`, 또는 `검증 불가`로 판정한다.
+8. 필요한 경우 좁은 범위의 테스트를 실행한다.
    - 기본은 파일 읽기와 근거 추적이다.
    - 불확실성을 줄이는 데 필요할 때만 대상 unit/component/API-client/STOMP-client 테스트, typecheck, 또는 이미 구성된 Playwright 테스트를 실행한다.
    - 실행한 명령과 결과를 보고한다.

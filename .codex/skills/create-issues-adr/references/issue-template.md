@@ -31,12 +31,16 @@ source_documents:
 source_scenarios: []
 related_adrs: []
 depends_on: []
+e2e_required: false
+visual_states: []
 ---
 ```
 
 `depends_on`은 참고용 링크가 아니라 TDD 시작 전 실행 게이트다. 같은 feature의 후속 번호 이슈는 기본적으로 이전 번호 이슈의 AC 충족과 테스트 통과를 전제로 하며, 독립 또는 병렬 가능 이슈만 빈 배열을 사용할 수 있다.
 
 `foundation` 이슈는 `feature: "foundation"`, `slice_type: "foundation"`을 사용한다. feature PRD 대신 approved root TRD, fixed architecture, 관련 storyboard/design 기준을 `source_documents`에 기록한다.
+
+`e2e_required`는 route 또는 실제 UI 흐름과 대표 시각 상태를 browser에서 검증해야 하면 `true`로 둔다. `visual_states`에는 검증할 오류·권한·loading·empty·실시간 상태를 적는다. API/state/adapter만 다루는 이슈는 기본값 `false`를 유지한다.
 
 ## 본문 형식
 
@@ -103,6 +107,7 @@ AC는 PRD 사용자 시나리오에서 도출하고 Given-When-Then으로 작성
 - 정적 분석 또는 하네스 검사: 하네스가 없으면 기능 이슈에 묻지 말고 별도 선행 작업 또는 미확정 사항으로 분리한다.
 - 필요 시 수동 검증:
 - Foundation 테스트: token/primitive/app shell의 public variant, semantic DOM, keyboard/focus, responsive contract 관점을 적는다.
+- E2E/visual smoke: `e2e_required: true`일 때 desktop/mobile 사용자 흐름과 `visual_states`를 적고, 그렇지 않으면 불필요 사유를 적는다.
 
 ## 구현 메모
 
@@ -128,6 +133,10 @@ AC는 PRD 사용자 시나리오에서 도출하고 Given-When-Then으로 작성
 ## TDD BLUE 결과
 
 `tdd-blue`가 이슈 디렉터리의 `refactor-log.md`를 최신 BLUE 결과로 갱신한다. 성공, 불필요, 차단은 최신 스냅샷으로 덮어쓰고, 3회 실패 내역은 누적 가능하다.
+
+## E2E 결과
+
+`e2e_required: true`이면 `$e2e-test`가 `e2e-test.md`를 최신 결과로 생성하거나 갱신한다. `false`이면 `e2e-not-required` 근거만 기록한다.
 
 ## 관련 문서
 
