@@ -7,4 +7,6 @@
 
 FE 로컬 추정과 BE 요구사항이 충돌하면 BE 요구사항을 우선한다.
 
+FE 계약 projection은 canonical BE repo의 전체 협상 session이 `completed`이고 모든 summary가 `fixed`인 경우에만 `$sync-fe-contracts`로 동기화한다. topic별 부분 sync는 하지 않는다.
+
 이 `AGENTS.md`는 항상 150줄 이하로 유지하고, 상세 절차는 스킬에 둔다.

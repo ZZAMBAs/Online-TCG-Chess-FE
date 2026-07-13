@@ -1,4 +1,4 @@
 interface:
   display_name: "Sync FE Contracts"
-  short_description: "BE fixed 계약을 FE 참조 문서로 투영"
-  default_prompt: "Use $sync-fe-contracts to project fixed BE negotiation summaries into FE docs/contracts without creating implementation, issue, or TDD plans."
+  short_description: "전체 협상 완료 후 BE 계약을 FE 참조로 투영"
+  default_prompt: "Use $sync-fe-contracts only after the canonical BE negotiation session is completed, then project every fixed summary into FE docs/contracts."
