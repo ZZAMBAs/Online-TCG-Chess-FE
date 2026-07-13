@@ -2,7 +2,7 @@
 
 ## 입력
 
-- `$spec-read`가 확인한 BE 요구사항 캐시
+- `$spec-read`와 `$prd-read`가 확인한 BE 요구사항·PRD 캐시
 - 존재하는 경우의 `docs/design/storyboard-manifest.json`
 - 존재하는 경우의 `docs/design/storyboard-pages.md`
 - 존재하는 경우의 `docs/design/storyboard/fragments/*.html`
@@ -59,10 +59,12 @@
 
 - `spec.be_commit` 또는 `spec.sha256`을 기록한다.
 - `pages` 순서는 최종 HTML 탐색 순서로 둔다.
-- 새 페이지의 초기 `status`는 `draft` 또는 `needs-review`로 둔다.
+- manifest version은 `2`, `workflow_stage`는 `structure-draft` 또는 `structure-review`로 둔다.
+- 새 페이지는 `review.structure: draft`, `review.visual: blocked`로 둔다.
 - 새 페이지의 기본 fidelity는 `structure`로 두고 `visual_reference: null`, `representative_states: []`, `component_patterns: []`를 기록한다.
+- 사용자가 명시적으로 제공한 외부 참고 자산만 `visual_reference` 후보로 기록한다.
 - 루트 페이지는 `parent_id: null`로 둔다.
 - 하위 페이지는 `parent_id`에 단일 부모 page id를 둔다.
 - 여러 화면에서 진입 가능하면 `entry_points`에 모든 출발 page id를 둔다.
-- 사용자가 승인한 페이지만 `approved`로 둔다.
+- 사용자가 구조를 승인한 페이지만 `review.structure: approved`로 둔다. 시각 승인은 split 단계에서 변경하지 않는다.
 - 다음 턴에 이어갈 수 있도록 `next`나 `handoff`에 작업 후보를 남긴다.

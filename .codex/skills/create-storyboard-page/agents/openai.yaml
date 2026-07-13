@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Storyboard Page"
-  short_description: "페이지별 의미 구조와 상호작용 상태 작성"
-  default_prompt: "Use $create-storyboard-page to create or update one low-fidelity storyboard page fragment."
+  short_description: "페이지 구조와 공통 디자인 화면을 단계별 작성"
+  default_prompt: "$create-storyboard-page를 사용해 대상 페이지를 현재 workflow stage에 맞는 structure 또는 visual 모드로 작성해줘."

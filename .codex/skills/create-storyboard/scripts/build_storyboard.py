@@ -20,6 +20,29 @@ STORYBOARD_DIR = DESIGN_DIR / "storyboard"
 STYLE_DIR = STORYBOARD_DIR / "styles"
 FRAGMENT_DIR = STORYBOARD_DIR / "fragments"
 FORBIDDEN_PATTERN = re.compile(r"<\s*iframe\b|srcdoc\s*=", re.IGNORECASE)
+FRAGMENT_STYLE_PATTERN = re.compile(
+    r"<\s*style\b|\sstyle\s*=",
+    re.IGNORECASE,
+)
+PAGE_SCOPED_CSS_PATTERN = re.compile(
+    r"(?:#page-|\.page-fragment--[a-z0-9-]+\s)",
+    re.IGNORECASE,
+)
+REVIEW_STATUSES = {
+    "draft",
+    "needs-review",
+    "approved",
+    "needs-revision",
+    "rejected",
+    "blocked",
+}
+WORKFLOW_STAGES = {
+    "structure-draft",
+    "structure-review",
+    "design-draft",
+    "visual-review",
+    "approved",
+}
 
 
 BASE_CSS = """
@@ -86,8 +109,9 @@ a { color: inherit; }
 .story-page__header h2 { margin: 0; font-size: 22px; }
 .story-page__body { padding: 20px; }
 .story-status-approved { border-color: var(--story-accent); color: var(--story-accent); }
-.story-status-needs-revision, .story-status-rejected { border-color: var(--story-danger); color: var(--story-danger); }
+.story-status-needs-revision, .story-status-rejected, .story-status-blocked { border-color: var(--story-danger); color: var(--story-danger); }
 .story-status-draft, .story-status-needs-review { border-color: var(--story-warning); color: var(--story-warning); }
+.story-review { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 @media (max-width: 720px) {
   .story-shell { padding: 18px 12px 40px; }
   .story-header, .story-section, .story-page__body { padding: 14px; }
@@ -139,9 +163,48 @@ def page_items(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     return result
 
 
+def validate_workflow_state(
+    manifest: dict[str, Any], pages: list[dict[str, Any]]
+) -> None:
+    if manifest.get("version") != 2:
+        return
+    stage = manifest.get("workflow_stage")
+    if stage not in WORKFLOW_STAGES:
+        fail(f"Invalid workflow_stage for manifest version 2: {stage}")
+    statuses = [review_status(page) for page in pages]
+    for page, (structure, visual) in zip(pages, statuses, strict=True):
+        if structure not in REVIEW_STATUSES or visual not in REVIEW_STATUSES:
+            fail(
+                f"Invalid review status for page '{page['id']}': "
+                f"structure={structure}, visual={visual}"
+            )
+    all_structure_approved = all(item[0] == "approved" for item in statuses)
+    all_visual_approved = all(item[1] == "approved" for item in statuses)
+    design = manifest.get("design") if isinstance(manifest.get("design"), dict) else {}
+    baseline_status = str(design.get("baseline_status") or "blocked")
+    if stage in {"design-draft", "visual-review", "approved"} and not all_structure_approved:
+        fail(f"workflow_stage '{stage}' requires every structure review to be approved")
+    if stage == "visual-review" and baseline_status not in {"draft", "needs-review"}:
+        fail("visual-review requires a draft or needs-review design baseline")
+    if stage == "approved" and (
+        not all_visual_approved or baseline_status != "approved"
+    ):
+        fail("approved stage requires every visual review and design baseline to be approved")
+
+
 def reject_forbidden(label: str, content: str) -> None:
     if FORBIDDEN_PATTERN.search(content):
         fail(f"Forbidden iframe/srcdoc usage found in {label}")
+
+
+def reject_fragment_style(label: str, content: str) -> None:
+    if FRAGMENT_STYLE_PATTERN.search(content):
+        fail(f"Forbidden fragment-local style found in {label}")
+
+
+def reject_page_scoped_css(label: str, content: str) -> None:
+    if PAGE_SCOPED_CSS_PATTERN.search(content):
+        fail(f"Forbidden page-scoped CSS found in {label}")
 
 
 def list_values(value: Any) -> list[str]:
@@ -162,11 +225,12 @@ def render_index(pages: list[dict[str, Any]]) -> str:
     for page in pages:
         page_id = str(page["id"])
         title = str(page.get("title") or page_id)
-        status = str(page.get("status") or "draft")
+        structure, visual = review_status(page)
         links.append(
             '<li>'
             f'<a href="#page-{html.escape(page_id)}">{html.escape(title)}</a> '
-            f'<span class="story-pill story-status-{html.escape(status)}">{html.escape(status)}</span>'
+            f'<span class="story-pill story-status-{html.escape(structure)}">구조 {html.escape(structure)}</span> '
+            f'<span class="story-pill story-status-{html.escape(visual)}">시각 {html.escape(visual)}</span>'
             '</li>'
         )
     return '<ul class="story-list">\n' + "\n".join(links) + "\n</ul>"
@@ -178,6 +242,7 @@ def css_bundle() -> str:
         for path in sorted(STYLE_DIR.glob("*.css")):
             content = read_text(path)
             reject_forbidden(str(path), content)
+            reject_page_scoped_css(str(path), content)
             chunks.append(f"/* {path.relative_to(DESIGN_DIR)} */\n{content.strip()}")
     return "\n\n".join(chunks)
 
@@ -189,15 +254,26 @@ def fragment_path(page: dict[str, Any]) -> Path:
     return FRAGMENT_DIR / f"{page['id']}.html"
 
 
+def review_status(page: dict[str, Any]) -> tuple[str, str]:
+    review = page.get("review")
+    if isinstance(review, dict):
+        structure = str(review.get("structure") or "draft")
+        visual = str(review.get("visual") or "blocked")
+        return structure, visual
+    legacy = str(page.get("status") or "draft")
+    return legacy, "blocked"
+
+
 def render_page(page: dict[str, Any]) -> str:
     page_id = str(page["id"])
     title = str(page.get("title") or page_id)
-    status = str(page.get("status") or "draft")
+    structure, visual = review_status(page)
     path = fragment_path(page)
     if not path.exists():
         fail(f"Fragment not found for page '{page_id}': {path}")
     fragment = read_text(path).strip()
     reject_forbidden(str(path), fragment)
+    reject_fragment_style(str(path), fragment)
     requirements = ", ".join(list_values(page.get("requirements"))) or "requirements pending"
     return f"""
 <section class="story-page" id="page-{html.escape(page_id)}" data-page-id="{html.escape(page_id)}">
@@ -206,7 +282,10 @@ def render_page(page: dict[str, Any]) -> str:
       <h2>{html.escape(title)}</h2>
       <p>{html.escape(requirements)}</p>
     </div>
-    <span class="story-pill story-status-{html.escape(status)}">{html.escape(status)}</span>
+    <div class="story-review" aria-label="페이지 승인 상태">
+      <span class="story-pill story-status-{html.escape(structure)}">구조 {html.escape(structure)}</span>
+      <span class="story-pill story-status-{html.escape(visual)}">시각 {html.escape(visual)}</span>
+    </div>
   </header>
   <div class="story-page__body">
 {fragment}
@@ -224,6 +303,9 @@ def render_document(manifest: dict[str, Any], pages: list[dict[str, Any]]) -> st
         f"checked_at: {spec.get('checked_at')}" if spec.get("checked_at") else "",
     ]
     spec_text = " / ".join(bit for bit in spec_bits if bit) or "BE spec check metadata pending"
+    workflow_stage = str(manifest.get("workflow_stage") or "legacy")
+    design = manifest.get("design") if isinstance(manifest.get("design"), dict) else {}
+    baseline_status = str(design.get("baseline_status") or "blocked")
     page_sections = "\n\n".join(render_page(page) for page in pages)
     return f"""<!doctype html>
 <html lang="ko">
@@ -240,11 +322,12 @@ def render_document(manifest: dict[str, Any], pages: list[dict[str, Any]]) -> st
     <header class="story-header">
       <h1>{html.escape(title)}</h1>
       <p>{html.escape(spec_text)}</p>
+      <p>workflow: {html.escape(workflow_stage)} / design baseline: {html.escape(baseline_status)}</p>
     </header>
     <section class="story-section" aria-labelledby="story-reading-guide">
       <h2 id="story-reading-guide">읽는 법</h2>
       <div class="story-grid">
-        <p><strong>actual-ui</strong>: 실제 사용자에게 보이는 화면입니다.</p>
+        <p><strong>actual-ui</strong>: 구조 또는 시각 검토 중인 사용자 화면입니다.</p>
         <p><strong>story-note</strong>: 구현 판단을 위한 화면 밖 주석입니다.</p>
         <p><strong>dev-state</strong>: FE 상태명이나 서버 이벤트 상태입니다.</p>
       </div>
@@ -274,6 +357,7 @@ def main() -> int:
     pages = page_items(manifest)
     if not pages:
         fail("Manifest contains no pages")
+    validate_workflow_state(manifest, pages)
     output = args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     document = render_document(manifest, pages)

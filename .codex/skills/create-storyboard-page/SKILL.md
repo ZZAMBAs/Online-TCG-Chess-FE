@@ -1,41 +1,45 @@
 ---
 name: create-storyboard-page
-description: Online-TCG-Chess-FE 저충실도 스토리보드에서 특정 page id의 docs/design/storyboard/fragments/*.html fragment를 생성하거나 수정한다. PC/Mobile 의미 구조, 각 화면의 상호작용 결과, 오류/권한 상태, story-note/dev-state 구현 참고사항, manifest 상태 갱신이 필요한 페이지 단위 작업에 사용한다.
+description: Online-TCG-Chess-FE storyboard의 특정 page id를 structure 또는 visual 모드로 생성·수정한다. PC/Mobile 의미 구조, 실제 폼·목록·보드, 상호작용 결과, 오류·권한 상태를 작성하거나 승인된 구조에 draft 디자인 baseline과 공통 CSS class를 적용할 때 사용한다.
 ---
 
 # Create Storyboard Page
 
 ## 역할
 
-- 하나의 page id에 해당하는 body fragment를 생성하거나 수정한다.
-- 실제 사용자 UI와 구현 주석을 분리한다.
-- PC 화면, 모바일 화면, 각 화면의 행동 이후 상태를 같은 fragment 안에서 검토 가능하게 표현한다.
-- CSS 세부 구현보다 화면 의미, 사용자 행동, 상태 변화, 구현 참고사항을 우선한다.
-- 저스타일을 유지하되 실제 폼, 목록, 보드, 카드, 표, modal/sheet, CTA의 의미 구조를 텍스트 placeholder로 축소하지 않는다.
-- 최종 통합은 하지 않는다. 통합은 `$create-storyboard`의 빌드 스크립트가 담당한다.
+- 하나의 page id에 해당하는 body fragment만 작성한다.
+- `structure` 모드와 `visual` 모드를 명확히 구분한다.
+- 최종 통합과 공통 CSS 작성은 `$create-storyboard`가 담당한다.
 
 ## 절차
 
-1. `$spec-read`로 BE 요구사항 최신성을 확인한다. 이미 같은 턴에서 성공했다면 확인된 commit 또는 sha256을 사용한다.
-2. 작업 전에 `references/fragment-authoring.md`를 읽는다.
-3. `docs/design/storyboard-manifest.json`에서 대상 page id를 찾는다.
-4. 대상 fragment가 있으면 해당 파일만 읽는다. 전체 `docs/design/storyboard.html`을 먼저 읽지 않는다.
-5. page의 `visual_reference`가 존재하고 실제 파일을 읽을 수 있으면 정보 구조와 상태 보존 근거로 사용한다. 없으면 `structure` fidelity로 새 fragment를 작성한다.
-6. 새 fragment라면 존재하는 manifest와 fragments에서 중복 여부를 다시 확인한다.
-7. 화면을 작성하거나 수정한 뒤 manifest의 해당 page에 fidelity, 대표 상태, 컴포넌트 패턴, 승인 필요 여부, 변경 notes를 남긴다.
+1. 같은 workflow turn에서 확인한 `$spec-read`와 `$prd-read` commit/hash를 사용한다. 없으면 먼저 확인한다.
+2. `references/fragment-authoring.md`를 읽는다.
+3. manifest에서 page id, workflow stage, review 상태, visual reference를 확인한다.
+4. 대상 fragment와 해당 visual reference만 읽는다. 통합 HTML 전체를 먼저 읽지 않는다.
+5. 요청 모드의 gate를 확인하고 fragment를 작성한다.
+6. 대표 상태와 component pattern, 변경 note, 해당 review 상태를 manifest에 기록한다.
 
-## Fragment 위치
+## Structure 모드
 
-- 기본 경로는 `docs/design/storyboard/fragments/<page-id>.html`이다.
-- manifest의 `pages[].fragment`가 있으면 그 경로를 따른다.
-- fragment는 `<body>` 전체 문서가 아니라 통합본에 삽입될 body 조각이다.
+- `structure-draft` 또는 구조 재검토에서 사용한다.
+- 실제 사용자 목적을 판단할 수 있는 semantic form, list, table, board, dialog/sheet, CTA를 작성한다.
+- PC/Mobile 정보 우선순위와 행동 이후 결과를 분리한다.
+- visual reference가 있으면 정보 위계·상태·조작 의미를 재사용하되 CSS를 복사하지 않는다.
+- 변경 후 `review.structure`을 `needs-review`, `review.visual`을 `blocked`로 둔다.
 
-## 작성 원칙
+## Visual 모드
 
-- 실제 사용자가 보는 UI는 `.actual-ui` 영역에 둔다.
-- 실제 UI에는 사용자에게 노출되는 문구, 버튼, 카드, 모달, 인라인 피드백, 오버레이만 넣는다.
-- 요구사항 설명, 구현 의도, BE/FE 조건, 개발 상태명은 `.story-note` 또는 `.dev-state`로 화면 밖에 둔다.
-- 공통 읽는 법이나 반복 안내 카드는 fragment에 넣지 않는다.
-- CSS는 가독성 보조 수준으로만 사용하고, 실제 FE 디자인 시스템이나 스타일링 기술을 확정하지 않는다.
-- `iframe`과 `srcdoc`은 사용하지 않는다.
-- 앱 소스코드와 BE 요구사항 문서는 수정하지 않는다.
+- `review.structure == approved`이고 `design-baseline.md`가 `draft` 또는 `needs-review`일 때만 사용한다.
+- baseline에 정의된 token과 공유 primitive/product-surface class만 적용한다.
+- 실제 사용자 화면에 가까운 밀도, 위계, 상태 표현을 만든다.
+- fragment에 `<style>`, `style` 속성, 페이지 전용 CSS를 추가하지 않는다.
+- 변경 후 `review.visual`을 `needs-review`로 둔다.
+
+## Fragment 규칙
+
+- 위치는 manifest의 `fragment` 또는 `docs/design/storyboard/fragments/<page-id>.html`이다.
+- `.actual-ui`에는 사용자에게 보이는 UI만 둔다.
+- `.story-note`와 `.dev-state`에는 화면 밖 구현·서버 상태 참고만 둔다.
+- `iframe`과 `srcdoc`을 사용하지 않는다.
+- 앱 소스와 요구사항 원문을 수정하지 않는다.

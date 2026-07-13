@@ -1,112 +1,94 @@
 # Storyboard Workflow
 
-## 상태 파일
+## 상태 저장소
 
-- `docs/design/storyboard-manifest.json`을 컨텍스트 압축 이후에도 다시 읽는 단일 상태 저장소로 사용한다.
-- `docs/design/storyboard-pages.md`는 사람이 검토하는 페이지 분리안이다.
-- 대화에서 확정된 표현 원칙, 승인/반려 이력, 중복 확인 결과, 다음 작업 후보를 manifest에 기록한다.
-- 시각 디자인 세부값은 TRD 이후 확정 대상으로 남기고, manifest에는 화면 의미와 구현 참고사항을 우선 기록한다.
-
-## Manifest 권장 구조
+`docs/design/storyboard-manifest.json`을 단일 실행 상태 저장소로 사용한다. 대화 내용보다 manifest를 우선한다.
 
 ```json
 {
-  "version": 1,
-  "spec": {
-    "be_commit": "",
-    "sha256": "",
-    "checked_at": ""
+  "version": 2,
+  "workflow_stage": "structure-review",
+  "design": {
+    "baseline": "design-baseline.md",
+    "baseline_status": "blocked"
   },
-  "design_rules": [],
-  "flow_summary": [],
-  "handoff": [],
   "pages": [
     {
-      "id": "lobby",
-      "title": "로비",
-      "parent_id": null,
-      "status": "draft",
-      "requirements": [],
-      "fragment": "storyboard/fragments/lobby.html",
-      "entry_points": [],
-      "duplicate_check": {
-        "checked_at": "",
-        "matches": []
+      "id": "lobby-quick-match",
+      "review": {
+        "structure": "needs-review",
+        "visual": "blocked"
       },
       "fidelity": "structure",
-      "visual_reference": null,
-      "representative_states": [],
-      "component_patterns": [],
-      "notes": [],
-      "next": []
+      "visual_reference": null
     }
   ]
 }
 ```
 
-## 전체 흐름
+허용 page review 상태는 `draft`, `needs-review`, `approved`, `needs-revision`, `rejected`, `blocked`다.
 
-1. `$spec-read` 성공 출력의 BE commit 또는 문서 sha256을 manifest에 기록한다.
-2. `storyboard-manifest.json`과 `storyboard-pages.md`가 모두 있으면 기존 상태를 복원한다.
-3. 상태 파일이 없으면 신규 프로젝트 bootstrap으로 보고 `$split-storyboard-pages`로 두 파일과 기본 page 목록을 만든다. 기존 fragment, tmp HTML, 통합 HTML이 없어도 정상 상태다.
-4. 기존 storyboard 또는 참고 화면이 있으면 page별 `visual_reference` 후보로만 기록한다. 참고 자산이 없으면 `null`을 유지한다.
-5. 페이지 분리안이 없거나 요구사항 변경으로 오래되었으면 `$split-storyboard-pages`로 갱신한다.
-6. 만들거나 수정할 page id를 하나 고른다.
-7. 새 페이지라면 존재하는 manifest, fragment, 참고 자산을 검색해 중복 여부를 기록한다.
-8. `$create-storyboard-page <page-id>`로 해당 fragment만 작성하거나 수정한다.
-9. 사용자가 승인하면 해당 page의 `status`를 `approved`로 바꾼다. 반려면 `needs-revision`과 반려 이유를 남긴다.
-10. 통합이 필요하면 `scripts/build_storyboard.py`를 실행한다.
-11. `rg "<iframe|srcdoc" docs/design/storyboard.html docs/design/storyboard/fragments`로 금지 요소를 확인한다.
-12. manifest의 모든 page id가 `docs/design/storyboard.html`에 포함되는지 확인한다.
-13. 브라우저 캡처로 확인했다면 검증 결과만 요약하고 캡처 파일은 삭제한다.
+## 상태 전이
 
-## Fidelity와 선택적 참고 자산
+1. `structure-draft`
+   - `$split-storyboard-pages`로 page map을 만든다.
+   - `$create-storyboard-page` structure 모드로 fragment를 작성한다.
+   - 신규/수정 page는 structure `needs-review`, visual `blocked`다.
+2. `structure-review`
+   - 화면 목적, 흐름, PC/Mobile 우선순위, 대표 상태를 사용자에게 검토받는다.
+   - 모든 structure가 approved일 때만 다음 단계로 간다.
+3. `design-draft`
+   - `$design-decision`으로 draft baseline과 공유 CSS 계약을 만든다.
+   - tmp나 외부 참고 화면은 시각 방향 후보로만 사용한다.
+4. `visual-review`
+   - `$create-storyboard-page` visual 모드로 모든 페이지에 같은 디자인 문법을 적용한다.
+   - 기본 화면과 대표 상태를 desktop/mobile에서 검토한다.
+5. `approved`
+   - 모든 visual review와 baseline을 사용자 승인 후 함께 approved로 확정한다.
+   - `$architecture-decision`으로 넘긴다.
 
-- `structure`: 기본값. 레이아웃 의미, 실제 입력/버튼/목록/보드 구조, 핵심 상태를 저스타일 HTML로 표현한다.
-- `reference`: 승인된 기존 화면이나 시각 참고 자산을 연결한다. fragment는 참고 자산의 핵심 정보 구조만 보존한다.
-- `prototype`: 별도 승인된 디자인 기준으로 대표 화면을 구체화한 경우에만 사용한다.
-- `visual_reference`는 선택적 경로다. 없다는 이유로 페이지 작성이나 승인을 차단하지 않는다.
-- 기존 manifest에 fidelity 필드가 없으면 `structure`, visual reference가 없으면 `null`로 해석해 호환한다.
-- `representative_states`에는 화면 검토 가치가 큰 기본·오류·권한·실시간 상태만 기록한다.
-- `component_patterns`는 후속 architecture/TRD에서 컴포넌트 경계를 추적하기 위한 의미 이름이며 구현 기술명을 넣지 않는다.
+구조가 바뀌면 해당 page의 visual을 blocked로 바꾸고, 이미 approved인 baseline은 `needs-review`로 되돌린다.
 
-## 페이지 계층과 진입 경로
+## 기존 상태 호환
 
-- 루트 페이지는 `parent_id: null`로 둔다.
-- 하위 페이지는 정보 구조상 부모 page id를 `parent_id`에 하나만 기록한다.
-- 여러 진입 경로는 `entry_points` 배열로 기록한다.
-- 현재 페이지에서 이어지는 목적지는 `next` 배열로 기록한다.
-- `parent_id`는 소유/계층을 의미하고, `entry_points`는 사용자가 도달할 수 있는 출발 화면을 의미한다.
-- 예: `account-info`의 `parent_id`는 `my-page`이고, `entry_points`는 `["my-page", "settings"]`일 수 있다.
+- version 1의 `page.status`는 구조 상태로 읽는다.
+- migration 시 `review.structure = status`, `review.visual = blocked`로 옮긴다.
+- 기존 `status`는 새 승인 판단에 사용하지 않는다.
+- 기존 fidelity가 없으면 `structure`, visual reference가 없으면 `null`로 해석한다.
+
+## 선택적 참고 자산
+
+- 사용자가 명시적으로 제공한 외부 참고 자산만 `visual_reference`로 기록한다.
+- 참고 자산이 없으면 `null`을 유지하고 요구사항, PRD, 승인된 구조와 디자인 결정만으로 작성한다.
+- 참고 자산의 독립 CSS를 복사하지 않고 정보 위계와 상태 표현만 참고한다.
+- 참고 자산 부재를 구조 또는 시각 작성의 차단 사유로 삼지 않는다.
+
+## 공유 CSS 경계
+
+- `tokens.css`: 의미 기반 값만 둔다.
+- `primitives.css`: app shell, navigation, button, input, card, list, table, dialog/sheet, status를 둔다.
+- `product-surfaces.css`: board, game HUD, TCG card, hand, chat, admin workspace를 둔다.
+- fragment 내부 `<style>`, `style` 속성, page id selector, 페이지별 stylesheet를 금지한다.
+- CSS 기술과 production 파일 위치는 architecture가 결정한다.
 
 ## 질문과 승인
 
-- 질문은 한 번에 하나만 한다.
-- 요구사항에서 알 수 있는 내용은 묻지 않는다.
-- 요구사항 흐름, 화면 의미, 상호작용, PC/Mobile 우선순위를 바꾸는 선택지만 묻고, 추천안을 먼저 제시한다.
-- 가벼운 문구나 구조 정리는 추가 질문 없이 반영할 수 있다.
-- 색상, 간격, radius, typography 같은 실제 디자인 시스템 결정은 TRD 이후 항목으로 남긴다.
-- 요구사항과 사용자 요청이 충돌하면 BE 요구사항을 우선하고 충돌 지점을 설명한다.
+- 구조 단계에서는 흐름·화면 의미·반응형 우선순위만 묻는다.
+- 디자인 단계에서는 전역 시각 방향·density·접근성에 영향을 주는 선택만 묻는다.
+- 질문은 한 번에 하나만 하고 추천안을 먼저 제시한다.
+- 사용자 승인 없이 상태를 approved로 바꾸지 않는다.
+- 구조 승인과 시각 승인을 하나의 표현으로 합치지 않는다.
 
-## 통합 규칙
+## 통합 검증
 
-- 최종 HTML은 렌더링 보조 CSS와 fragment를 한 문서로 조립한다.
-- 상단에는 읽는 법, 화면 흐름 요약, 구현 핸드오프를 한 번만 둔다.
-- 페이지별 fragment에는 공통 안내를 반복하지 않는다.
-- tmp 독립 HTML은 최종 기준이 아니다. 필요한 경우 검토용으로만 만들고 manifest에 기준 산출물이 아님을 남긴다.
+1. build script로 통합한다.
+2. 금지 요소와 누락 page id를 검사한다.
+3. manifest stage와 page review 조합이 유효한지 검사한다.
+4. desktop/mobile에서 가로 넘침, 겹침, 읽기 순서와 대표 상태를 확인한다.
+5. 캡처 결과를 요약하고 파일은 삭제한다.
 
-## 검증 캡처 정리
+## 구현 handoff
 
-- 데스크톱/모바일 캡처는 검증 중 임시 파일로만 사용한다.
-- 캡처 파일은 검증 결과를 확인하고 요약한 뒤 삭제한다.
-- 캡처 파일을 git 추적 산출물이나 장기 보관 자료로 남기지 않는다.
-- 실패 캡처도 사용자가 보관을 명시적으로 요청하지 않으면 삭제하고, 실패 내용은 텍스트로 요약한다.
-
-## 저충실도 기준
-
-- CSS는 화면 영역 구분, PC/Mobile 비교, 상태/주석 영역 구분, 기본 가독성에만 사용한다.
-- Tailwind, styled-components, theme token, 컴포넌트 라이브러리 규칙을 흉내 내지 않는다.
-- 실제 FE 스타일링 기술, 디자인 토큰, 상세 시각값은 TRD 이후 확정 대상으로 `handoff`나 page `notes`에 남긴다.
-- 스토리보드의 핵심 정보는 화면 의미, 사용자 행동, 행동 이후 결과, 오류/권한 상태, 서버 이벤트, FE 조건부 렌더링 참고사항이다.
-- 실제 폼, 목록, 표, 보드, 카드, dialog/sheet, CTA가 필요한 화면은 대응되는 semantic HTML 구조를 둔다. 이름만 적은 placeholder 카드로 화면 전체를 대체하지 않는다.
-- 같은 페이지의 모든 상태를 고충실도로 복제하지 않고 기본 화면과 `representative_states`의 핵심 차이만 표현한다.
+- 승인된 token 이름/값, component variant, responsive/a11y 규칙을 넘긴다.
+- storyboard HTML 자체를 production component 계약으로 간주하지 않는다.
+- 라우팅, 상태 소유권, CSS 기술과 실제 component boundary는 architecture/TRD에서 확정한다.

@@ -1,74 +1,69 @@
 # Fragment Authoring Rules
 
-## 기본 구조
+## 공통 구조
 
 ```html
 <section class="page-fragment page-fragment--<page-id>">
   <div class="layout-pair">
-    <article class="viewport viewport--desktop actual-ui" aria-label="PC layout">
-      <!-- 실제 PC 사용자 화면 의미 구조 -->
-      <section class="interaction-state" aria-label="PC interaction result">
-        <!-- PC에서 사용자 행동 이후 보이는 결과 -->
-      </section>
+    <article class="viewport viewport--desktop actual-ui" aria-label="PC 화면">
+      <!-- 실제 사용자 화면 -->
     </article>
-    <article class="viewport viewport--mobile actual-ui" aria-label="Mobile layout">
-      <!-- 실제 모바일 사용자 화면 의미 구조 -->
-      <section class="interaction-state" aria-label="Mobile interaction result">
-        <!-- 모바일에서 사용자 행동 이후 보이는 결과 -->
-      </section>
+    <article class="viewport viewport--mobile actual-ui" aria-label="Mobile 화면">
+      <!-- 실제 사용자 화면 -->
     </article>
   </div>
-
-  <aside class="story-note">
-    <!-- 화면 의미, 상호작용 의도, 구현 참고사항 -->
-  </aside>
-
-  <aside class="dev-state">
-    <!-- FE 상태명, 서버 이벤트, 조건부 렌더링 키 -->
-  </aside>
+  <section class="state-gallery" aria-label="대표 상호작용 상태">
+    <!-- 기본 화면 전체를 복제하지 않고 달라지는 영역 중심 -->
+  </section>
+  <aside class="story-note"><!-- 화면 의미와 구현 참고 --></aside>
+  <aside class="dev-state"><!-- FE/서버 상태명 --></aside>
 </section>
 ```
 
-## 사용자 화면과 주석 분리
+## Structure 모드
 
-- `.actual-ui` 안에는 실제 제품 UI의 의미 구조만 둔다.
-- `.story-note`에는 페이지 고유의 화면 의미, 상호작용 의도, 구현 참고사항만 둔다.
-- `.dev-state`에는 사용자 문구처럼 보이면 안 되는 상태명, 이벤트명, 조건명을 둔다.
-- "스토리보드 주석이란" 같은 공통 안내는 쓰지 않는다.
-- `.actual-ui`에는 화면 목적을 판단할 수 있는 semantic form, input, button, list/table, board, dialog/sheet 구조를 둔다. 화면 전체를 설명 카드나 placeholder 문장만으로 대체하지 않는다.
+- 사용자에게 필요한 실제 semantic element를 사용한다.
+- 폼은 `form`, `label`, `input`, `button`으로, 목록/표/보드/dialog/sheet도 의미에 맞는 구조로 표현한다.
+- 사용자 화면 전체를 설명 카드나 placeholder 문장으로 대체하지 않는다.
+- 주요 행동의 성공, 검증 실패, 서버 거부, 대기, 권한, 자동 이동을 대표 상태로 둔다.
+- PC와 Mobile의 정보 순서와 행동 위치를 별도로 작성한다.
+- visual reference에서는 정보 위계와 상태만 가져온다.
 
-## PC/Mobile
+## Visual 모드
 
-- PC와 Mobile은 같은 반응형 화면을 단순 축소하지 말고 별도 검토 영역으로 둔다.
-- 모바일에서 먼저 보여줄 정보, CTA 위치, 모달/시트 표현이 다르면 구체적으로 다르게 그린다.
-- 각 viewport 안에서 정보 우선순위, 주요 행동, 행동 이후 상태, 오류/권한 상태를 따로 표현한다.
-- 고정 형식 UI는 구조가 이해되는 정도의 간단한 grid나 placeholder로 표현한다.
+- `design-baseline.md`의 draft 값을 읽고 공유 class로만 표현한다.
+- class는 의미 패턴을 나타낸다. 예: `app-shell`, `ui-button`, `ui-card`, `ui-dialog`, `game-board`, `tcg-card`.
+- 화면 밀도, 강조 순서, 상태 색, focus와 touch target을 baseline과 맞춘다.
+- 페이지 고유 배치가 필요하면 semantic wrapper class를 fragment에 둘 수 있지만 CSS selector는 추가하지 않는다. 공유 가능한 surface인지 먼저 판단한다.
+- 실제와 가까운 화면이어도 framework component명이나 production state명을 사용자 UI에 노출하지 않는다.
 
-## 행동 이후 상태
+## 사용자 UI와 주석
 
-- 사용자가 할 수 있는 주요 행동마다 결과 상태를 같은 fragment 안에 둔다.
-- 예: 제출 성공, 검증 실패, 서버 거부, 모달 표시, 바텀시트, 대기 상태, 비활성 상태, 자동 이동.
-- PC와 Mobile의 결과 표현이 다르면 각각의 `.interaction-state`에 따로 둔다.
-- 행동 결과가 다른 페이지 이동이면 destination page id를 `.story-note`와 manifest `next`에 기록한다.
-- 이후 목적지 fragment가 완성되면 예상 화면 표현을 동기화한다.
+- `.actual-ui`에는 실제 사용자가 보는 문구와 control만 둔다.
+- `.story-note`에는 화면 고유 의도와 다음 page id를 둔다.
+- `.dev-state`에는 이벤트명, 상태 조건, 동기화 기준을 둔다.
+- 공통 읽는 법은 fragment마다 반복하지 않는다.
 
-## CSS
+## 대표 상태
 
-- CSS는 렌더링 보조용 최소값만 사용한다.
-- 허용 범위는 화면 영역 구분, PC/Mobile 비교 레이아웃, 상태/주석 영역 구분, 기본 가독성이다.
-- 색상 팔레트, spacing, radius, typography, 실제 컴포넌트 스타일을 확정하지 않는다.
-- Tailwind, styled-components, theme token, 컴포넌트 라이브러리 규칙을 흉내 내지 않는다.
-- 페이지별 스타일을 추가하기보다 의미 있는 HTML 구조와 class 이름을 우선한다.
-- `structure` fidelity에서는 실제 디자인을 흉내 내기 위한 색상·그림자·상세 spacing을 넣지 않는다.
-- `visual_reference`가 있어도 해당 문서의 페이지 전용 CSS를 복사하지 않는다. 보존할 대상은 정보 위계, 영역 배치, CTA와 상태 표현이다.
+- 기본 상태는 desktop/mobile viewport에 표현한다.
+- 대표 상태는 `state-gallery`에서 변경되는 panel, dialog, sheet, status만 보여준다.
+- 오류 코드 목록 전체나 모든 가능한 조합을 시각화하지 않는다.
+- 다른 page 이동이면 manifest `next`에 목적지를 기록한다.
+
+## CSS 금지와 허용
+
+- fragment의 `<style>`, `style` 속성, `iframe`, `srcdoc`을 금지한다.
+- 페이지별 stylesheet와 `.page-fragment--<id> ...` selector를 금지한다.
+- 공유 primitive 또는 product surface가 부족하면 `$create-storyboard` 디자인 패스에서 공통 CSS를 보강한다.
+- CSS custom property 값은 `tokens.css`에서만 정의한다.
 
 ## Manifest 갱신
 
-- 변경한 page의 `status`를 실제 상태에 맞게 둔다: `draft`, `needs-review`, `approved`, `needs-revision`, `rejected`.
-- `notes`에는 페이지 고유 변경점과 남은 질문을 적는다.
-- `duplicate_check`에는 확인 대상과 결과를 남긴다.
-- 하위 페이지 fragment를 작성하거나 수정하면 `parent_id`와 `entry_points`가 올바른지 확인한다.
-- PC/Mobile 차이, 주요 상호작용 결과, TRD 이후 스타일링 결정 필요 항목을 `notes`나 `handoff`에 남긴다.
-- 승인된 표현 원칙은 page note가 아니라 manifest의 `design_rules`에 둔다.
-- 신규 page는 `fidelity: structure`로 시작한다. 참고 자산이 없으면 `visual_reference: null`을 유지하고 승인 차단 사유로 삼지 않는다.
-- `representative_states`에는 fragment에서 실제로 비교 가능한 상태만 기록하고, `component_patterns`에는 구현 기술과 무관한 의미 패턴을 기록한다.
+- structure 변경: `review.structure = needs-review`, `review.visual = blocked`.
+- visual 변경: structure는 유지하고 `review.visual = needs-review`.
+- 사용자 승인만 `approved`로 기록한다.
+- `fidelity`는 structure 모드에서 `structure`, 시각화 후 `prototype`으로 둔다.
+- `representative_states`에는 실제 fragment에 보이는 상태만 기록한다.
+- `component_patterns`에는 구현 기술과 무관한 공유 UI 의미 이름을 기록한다.
+- `visual_reference`와 재사용/제외 근거를 notes에 남긴다.

@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Storyboard"
-  short_description: "BE 요구사항 기반 저충실도 화면 흐름 검증"
-  default_prompt: "$create-storyboard를 사용해 BE 요구사항 기반 PC/모바일 저충실도 스토리보드를 만들어줘."
+  short_description: "구조부터 실제에 가까운 화면까지 승인형 생성"
+  default_prompt: "$create-storyboard를 사용해 구조 승인과 공통 디자인 적용을 거쳐 PC/모바일 스토리보드를 완성해줘."
