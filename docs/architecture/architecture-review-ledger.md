@@ -6,8 +6,8 @@ fixed architecture 이후 요구사항·디자인·계약·구현·CI/배포 변
 
 ## 리뷰 기준
 
-- last_reviewed_at: 2026-07-13
-- result: `review-pass`
+- last_reviewed_at: 2026-07-23
+- result: `review-pass` (contract reconfirmation)
 - skipped_area: 없음. 최초 review이므로 모든 영역을 검토함
 - design_baseline_sha256: `49a4875df222fe2c8c49721f38b517d9b3c4cf994b87ba6b97d1f1b0ec092fef`
 - storyboard_manifest_sha256: `c00e7a9709786536074a9f40c54da7cac7f483d7316f69227a21fa248e241d97`
@@ -15,7 +15,7 @@ fixed architecture 이후 요구사항·디자인·계약·구현·CI/배포 변
 - infra_fixed_sha256: `c41dabdb371446642e2caaa2a81a41549c50fe43749f661afde452db4574de2e`
 - harness_fixed_sha256: `c36721521866978987f2dd97c3cc64687539c34726c67699716bb46cbb75222d`
 - package_json_sha256: `f3ccd46701890ba6527eab42c3c470a51b7abd7b51a9a1a5234f605644d8568c`
-- implementation_state: `src`, `.github`, `docs/contracts` 없음
+- implementation_state: `src`, `.github` 없음; `docs/contracts`에 16개 fixed projection 존재
 - ignored_paths: `node_modules`, `dist`, `coverage`, generated output, screenshot, Playwright/test artifact, `.cache`
 
 ## 리뷰 영역 요약

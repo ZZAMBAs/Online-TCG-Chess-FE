@@ -6,13 +6,14 @@
 
 ## 원천 산출물과 입력 버전
 
-- BE spec commit: `a552e06723dc74a427792f10dcfa213540d7e2e4`
-- BE spec sha256: `d0309e904f6c28f2c0f5fb97e4a2d36b0337e262ac85f080fa4de699eae02b4d`
-- PRD manifest sha256: `3cc7f1757f7906512fc057c07a81e17ce75721bf8a823675269c070c7d0516de`
+- BE spec/PRD commit: `b939d5df32342422f98e3ac603fa32532c7424fb`
+- BE spec sha256: `6ac09a695776736f72bd683785d6e8b9c343f4af5f86545bd1964218cd7a7f10`
+- PRD manifest sha256: `33e482133073c19b76655d3b390192e7270e5fcd8430bbcc5d8cb5c6f7f348ef`
 - design baseline: `docs/design/design-baseline.md`, approved
 - storyboard manifest: version 2, approved, 16 pages
-- architecture interview: `docs/architecture/interview-20260713/summary.md`
-- fixed architecture: `docs/architecture/current-fixed.md`, `docs/architecture/fixed-20260713`
+- architecture interview: `docs/architecture/interview-20260723/summary.md`
+- fixed architecture: `docs/architecture/current-fixed.md`, `docs/architecture/fixed-20260723`
+- FE contract projection: `docs/contracts/*.md` 16개, source session `completed`, source status `fixed`
 
 ## 확정된 FE Architecture Constraints
 
@@ -37,6 +38,8 @@
 - module/import/token boundary 준수
 - typecheck/lint/unit/component/adapter/contract/build 통과
 - runtime STOMP schema validation과 version gap handling
+- canonical manifest/fixture fingerprint 일치와 unknown schema/union 차단
+- replay와 snapshot의 원자 교체, card/FEN/outcome 재계산 금지
 
 ### Conditional
 
@@ -51,10 +54,10 @@
 
 ## BE 계약 의존성
 
-- REST: fixed OpenAPI source, 생성 command/version, error model, CSRF 전달 방식
-- STOMP: handshake URL, destination, public/private channel, JSON Schema/fixture, reconnect/resync
-- 공통: errorCode, auth/account/sanction 상태, breaking change procedure
-- 현재 fixed contract projection path가 없으므로 계약 확정 전 payload를 추정하지 않는다.
+- REST: `auth-rest-oauth`, `auth-cookie-csrf`, `identity-account-rest`, `card-collection-deck-rest`, `match-history-replay-rest`, `community-rest`, `trust-safety-admin-rest`, `common-error-contract`
+- STOMP/game: `game-state-sync`, `game-command-catalog`, `game-card-action-selection`, `matchmaking-lifecycle`, `match-chat-contract`
+- schema/fixture: `contract-schema-closure`, `contract-fixture`, `final-coverage-review`
+- canonical artifact path와 generation command는 미확정이며, projection의 fixed contract를 넘어 payload를 추정하지 않는다.
 
 ## Storyboard Traceability
 
@@ -81,16 +84,16 @@
 
 ## 미확정 질문과 소유자
 
-- OpenAPI/STOMP 원천과 경로: BE 계약 협상/`sync-fe-contracts`
+- canonical OpenAPI/STOMP artifact 원천과 generation command: BE contract source/운영
 - hosting/runtime config/security header 상세: infra/운영
 - observability와 개인정보: 운영/security review
 - font/artwork license: foundation/design handoff
 - exact quality threshold: foundation baseline
-- 카드 12장 상세: 상위 요구사항/BE 문서
+- card image/artwork license: foundation/design handoff
 
 ## 상위 산출물 재검토 필요
 
-- 카드 상세와 fixture가 없는 상태에서 card effect UI/test 값을 임의 확정하지 않는다.
+- card action, catalog/revision, replay의 schema/fixture가 canonical bundle로 제공되기 전 UI/test 값을 임의 확정하지 않는다.
 - fixed contract가 storyboard 상태를 지원하지 않으면 계약 또는 storyboard를 재검토한다.
 - OAuth/CSRF/STOMP 연결 방식이 BE spec과 다르면 FE architecture를 바꾸지 말고 충돌을 보고한다.
 

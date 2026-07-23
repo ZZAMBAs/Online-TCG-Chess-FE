@@ -2,7 +2,7 @@
 id: "ARCH-ADR-010"
 status: "accepted"
 decision_scope: "infrastructure"
-fixed_reference: "docs/architecture/fixed-20260713/infra-fixed.md"
+fixed_reference: "docs/architecture/fixed-20260723/infra-fixed.md"
 supersedes: []
 source_documents:
   - "docs/architecture/interview-20260713/summary.md"

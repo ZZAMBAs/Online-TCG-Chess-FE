@@ -2,7 +2,7 @@
 id: "ARCH-ADR-018"
 status: "accepted"
 decision_scope: "ci-cd"
-fixed_reference: "docs/architecture/fixed-20260713/harness-fixed.md"
+fixed_reference: "docs/architecture/fixed-20260723/harness-fixed.md"
 supersedes: []
 source_documents:
   - "docs/architecture/interview-20260713/summary.md"

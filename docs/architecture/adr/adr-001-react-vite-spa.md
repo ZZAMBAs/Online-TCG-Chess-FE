@@ -2,7 +2,7 @@
 id: "ARCH-ADR-001"
 status: "accepted"
 decision_scope: "frontend-architecture"
-fixed_reference: "docs/architecture/fixed-20260713/impl-fixed.md"
+fixed_reference: "docs/architecture/fixed-20260723/impl-fixed.md"
 supersedes: []
 source_documents:
   - "docs/architecture/interview-20260713/summary.md"
